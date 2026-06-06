@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Automaitions — The work that runs your business</title>
+<meta name="description" content="Automaitions builds the systems that run your business in the background — handled, before you ask." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#5B5BD6;
+    --indigo-soft:#8C8CF0;
+    --ink:#0A0A0A;
+    --paper:#FAFAFA;
+    --grain: 0.55;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#050507;color:var(--paper);font-family:"Inter",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(91,91,214,0.18), transparent 60%),
+      radial-gradient(100% 60% at 80% 110%, rgba(91,91,214,0.10), transparent 55%),
+      #050507;
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* WebGL canvas — fixed behind everything */
+  #scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(5,5,7,0.85) 100%)}
+
+  /* Content layer */
+  main{position:relative;z-index:2}
+  nav{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;
+    padding:22px clamp(20px,4vw,52px);mix-blend-mode:difference}
+  .wm{font-weight:600;font-size:19px;letter-spacing:-.02em}
+  .wm .ai{color:var(--indigo)}
+  nav .right{display:flex;gap:26px;font-size:13.5px;font-weight:500;letter-spacing:.01em;opacity:.92}
+  nav .right a{position:relative}
+  nav .cta{padding:9px 17px;border:1px solid rgba(250,250,250,.25);border-radius:100px;backdrop-filter:blur(6px)}
+
+  section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+    padding:0 clamp(22px,7vw,150px);position:relative}
+
+  /* HERO */
+  .hero{min-height:108vh;justify-content:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--indigo-soft);font-weight:600;margin-bottom:30px;opacity:0}
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--indigo);box-shadow:0 0 14px 2px var(--indigo)}
+  h1{font-size:clamp(44px,8.4vw,130px);line-height:.94;font-weight:600;letter-spacing:-.045em;max-width:15ch}
+  h1 .ai{color:var(--indigo)}
+  h1 .dim{color:#6b6b78}
+  .sub{margin-top:34px;font-size:clamp(16px,2vw,22px);line-height:1.55;max-width:42ch;color:#c7c7d2;font-weight:400}
+  .heroctas{margin-top:46px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .btn{padding:15px 28px;border-radius:100px;font-weight:600;font-size:15px;letter-spacing:-.01em;transition:transform .25s ease, box-shadow .35s ease}
+  .btn.solid{background:var(--indigo);color:#fff;box-shadow:0 10px 40px -8px rgba(91,91,214,.7)}
+  .btn.solid:hover{transform:translateY(-2px);box-shadow:0 16px 50px -6px rgba(91,91,214,.9)}
+  .btn.ghost{border:1px solid rgba(250,250,250,.2);color:var(--paper)}
+  .btn.ghost:hover{border-color:rgba(250,250,250,.5)}
+
+  .scrollcue{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#6b6b78}
+  .scrollcue .bar{width:1px;height:46px;background:linear-gradient(var(--indigo),transparent);position:relative;overflow:hidden}
+  .scrollcue .bar::after{content:"";position:absolute;top:-46px;left:0;width:1px;height:46px;background:linear-gradient(transparent,var(--paper));animation:drop 2.2s ease-in-out infinite}
+  @keyframes drop{0%{transform:translateY(0)}70%,100%{transform:translateY(92px)}}
+
+  /* Reveal-on-scroll */
+  .reveal{opacity:0;transform:translateY(34px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* STATEMENT */
+  .statement h2{font-size:clamp(30px,5.2vw,76px);line-height:1.02;font-weight:500;letter-spacing:-.04em;max-width:18ch}
+  .statement h2 b{font-weight:600;color:#fff}
+  .statement h2 .ai{color:var(--indigo)}
+  .statement .lead{margin-top:30px;font-size:clamp(15px,1.8vw,19px);color:#9b9bab;max-width:48ch;line-height:1.6}
+
+  /* CAPABILITIES */
+  .cap-head{margin-bottom:54px}
+  .cap-head .k{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--indigo-soft);font-weight:600;margin-bottom:18px}
+  .cap-head h3{font-size:clamp(26px,3.6vw,46px);font-weight:600;letter-spacing:-.035em;line-height:1.05;max-width:20ch}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{position:relative;padding:34px 30px 38px;border-radius:20px;
+    background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+    border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(14px);overflow:hidden;transition:border-color .4s ease, transform .4s ease}
+  .card:hover{border-color:rgba(91,91,214,.55);transform:translateY(-4px)}
+  .card::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 50% -10%,rgba(91,91,214,.22),transparent 70%);opacity:0;transition:opacity .4s}
+  .card:hover::before{opacity:1}
+  .card .num{font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--indigo);opacity:.85}
+  .card h4{margin-top:20px;font-size:21px;font-weight:600;letter-spacing:-.02em}
+  .card p{margin-top:12px;font-size:14.5px;line-height:1.6;color:#9b9bab}
+
+  /* METRICS strip */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:8px}
+  .metric .v{font-size:clamp(40px,5.5vw,68px);font-weight:600;letter-spacing:-.04em;background:linear-gradient(180deg,#fff,#8C8CF0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .metric .l{margin-top:8px;font-size:14px;color:#9b9bab;max-width:24ch;line-height:1.5}
+
+  /* CTA */
+  .cta-sec{align-items:flex-start;text-align:left}
+  .cta-sec h2{font-size:clamp(32px,6vw,90px);font-weight:600;letter-spacing:-.045em;line-height:.98;max-width:16ch}
+  .cta-sec h2 .ai{color:var(--indigo)}
+  .cta-sec p{margin-top:26px;font-size:clamp(15px,1.8vw,19px);color:#9b9bab;max-width:44ch;line-height:1.6}
+  .cta-sec .heroctas{margin-top:40px}
+
+  footer{position:relative;z-index:2;padding:60px clamp(22px,7vw,150px) 50px;border-top:1px solid rgba(255,255,255,.07);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;font-size:13px;color:#6b6b78}
+  footer .wm{font-size:16px;color:var(--paper)}
+
+  @media(max-width:820px){
+    nav .right a:not(.cta){display:none}
+    .grid{grid-template-columns:1fr}
+    .metrics{grid-template-columns:1fr;gap:34px}
+    section{padding:90px clamp(22px,7vw,150px)}
+    .hero{padding-top:0}
+  }
+  .noscroll{overflow:hidden;height:100vh}
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+
+  <nav>
+    <div class="wm">autom<span class="ai">ai</span>tions</div>
+    <div class="right">
+      <a href="#what">What we do</a>
+      <a href="#work">The work</a>
+      <a href="#start" class="cta">Start a build</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <span class="eyebrow" id="eyebrow">AI operations, built for you</span>
+      <h1>The work that runs your business — <span class="ai">handled</span>, <span class="dim">before you ask.</span></h1>
+      <p class="sub">We design the quiet systems behind your business — the ones that answer, follow up, schedule, reconcile and report while you sleep. No dashboards to babysit. No prompts to write. It just runs.</p>
+      <div class="heroctas">
+        <a href="#start" class="btn solid">Start a build</a>
+        <a href="#what" class="btn ghost">See how it works</a>
+      </div>
+      <div class="scrollcue"><span>Scroll</span><span class="bar"></span></div>
+    </section>
+
+    <!-- STATEMENT -->
+    <section class="statement" id="what">
+      <h2 class="reveal">You hired people to <b>run the work.</b> We build the work so it <b>runs itself</b> — and tells you when it's <span class="ai">done</span>.</h2>
+      <p class="lead reveal">Every business runs on a hundred small repetitions. Automaitions turns those into systems that act on their own — connected to the tools you already use, watching the things you'd forget, moving before the problem reaches your desk.</p>
+    </section>
+
+    <!-- CAPABILITIES -->
+    <section id="work">
+      <div class="cap-head reveal">
+        <div class="k">What we build</div>
+        <h3>Four kinds of work, taken off your plate for good.</h3>
+      </div>
+      <div class="grid">
+        <div class="card reveal"><div class="num">01</div><h4>Always-on intake</h4><p>Leads, DMs, emails and forms answered in seconds, qualified, logged and routed — 3am or peak hour, same response.</p></div>
+        <div class="card reveal"><div class="num">02</div><h4>The follow-up engine</h4><p>Quotes chased, reviews requested, no-shows rebooked, dormant clients re-woken — the revenue that falls through cracks, recovered automatically.</p></div>
+        <div class="card reveal"><div class="num">03</div><h4>Back-office on rails</h4><p>Invoices reconciled, reports built, data moved between the tools that don't talk — the admin that eats your week, gone.</p></div>
+        <div class="card reveal"><div class="num">04</div><h4>The morning brief</h4><p>One clear read every day: what moved, what's stuck, what needs you. The whole operation, summarised before coffee.</p></div>
+      </div>
+    </section>
+
+    <!-- METRICS -->
+    <section>
+      <div class="cap-head reveal"><div class="k">Why it matters</div><h3>The hours you get back compound.</h3></div>
+      <div class="metrics">
+        <div class="metric reveal"><div class="v">24/7</div><div class="l">Your systems never clock off, never call in sick, never drop a lead.</div></div>
+        <div class="metric reveal"><div class="v">~20h</div><div class="l">Of repetitive admin handed back to a typical team, every single week.</div></div>
+        <div class="metric reveal"><div class="v">&lt;30d</div><div class="l">From first call to a system running live in your business.</div></div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-sec" id="start">
+      <h2 class="reveal">Tell us what runs your day. We'll make it run <span class="ai">itself.</span></h2>
+      <p class="reveal">One call. We map the repetitive work, find the highest-leverage system, and build it. You approve it once — then it just runs.</p>
+      <div class="heroctas reveal">
+        <a href="mailto:hello@automaitions.com" class="btn solid">Book a build call</a>
+        <a href="#" class="btn ghost">See a live system</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wm">autom<span class="ai" style="color:var(--indigo)">ai</span>tions</div>
+    <div>The work that runs your business — handled, before you ask.</div>
+    <div>© 2026 Automaitions</div>
+  </footer>
+
+  <!-- ===================== WebGL ===================== -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+    const canvas = document.getElementById('scene');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(62, innerWidth/innerHeight, 0.1, 1200);
+    camera.position.set(0, 0, 90);
+
+    const INDIGO = new THREE.Color(0x5B5BD6);
+    const SOFT   = new THREE.Color(0x8C8CF0);
+
+    // ---- Flowing particle river ----
+    const COUNT = 7000;
+    const DEPTH = 520;            // half-length of the stream along Z
+    const positions = new Float32Array(COUNT*3);
+    const seeds     = new Float32Array(COUNT);
+    const sizes     = new Float32Array(COUNT);
+    const speeds    = new Float32Array(COUNT);
+    const bright    = new Float32Array(COUNT);
+
+    for(let i=0;i<COUNT;i++){
+      const z = (Math.random()*2-1)*DEPTH;
+      const ang = Math.random()*Math.PI*2;
+      // denser core, sparse halo -> river feel
+      const r = Math.pow(Math.random(), 1.8) * 70;
+      let x = Math.cos(ang)*r;
+      let y = Math.sin(ang)*r*0.46;            // flatten vertically -> ribbon
+      x += Math.sin(z*0.012)*26;               // lateral meander
+      y += Math.cos(z*0.009)*12;               // vertical drift
+      positions[i*3]   = x;
+      positions[i*3+1] = y;
+      positions[i*3+2] = z;
+      seeds[i]  = Math.random()*Math.PI*2;
+      sizes[i]  = 0.5 + Math.random()*Math.random()*3.4;   // mostly small, few large
+      speeds[i] = 14 + Math.random()*26;
+      bright[i] = 0.25 + Math.pow(Math.random(),2.2)*1.5;  // few hot nodes
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+    geo.setAttribute('aSeed',    new THREE.BufferAttribute(seeds,1));
+    geo.setAttribute('aSize',    new THREE.BufferAttribute(sizes,1));
+    geo.setAttribute('aSpeed',   new THREE.BufferAttribute(speeds,1));
+    geo.setAttribute('aBright',  new THREE.BufferAttribute(bright,1));
+
+    const uniforms = {
+      uTime:{value:0}, uVel:{value:0}, uDepth:{value:DEPTH},
+      uIndigo:{value:INDIGO}, uSoft:{value:SOFT},
+      uPixel:{value:Math.min(window.devicePixelRatio,2)},
+      uFocus:{value:90.0}, uScroll:{value:0}
+    };
+
+    const mat = new THREE.ShaderMaterial({
+      uniforms,
+      transparent:true,
+      depthWrite:false,
+      blending:THREE.AdditiveBlending,
+      vertexShader:`
+        attribute float aSeed; attribute float aSize; attribute float aSpeed; attribute float aBright;
+        uniform float uTime; uniform float uVel; uniform float uDepth; uniform float uPixel; uniform float uFocus;
+        varying float vBright; varying float vBlur; varying float vEdgeFade;
+        void main(){
+          vec3 p = position;
+          // stream toward camera (+Z), wrap within [-uDepth, uDepth]
+          float flow = uTime * aSpeed * (1.0 + uVel*3.5);
+          float z = mod(p.z + flow + uDepth, 2.0*uDepth) - uDepth;
+          p.z = z;
+          // gentle breathing of the ribbon
+          p.x += sin(uTime*0.3 + aSeed)*1.6;
+          p.y += cos(uTime*0.26 + aSeed*1.3)*1.2;
+
+          vec4 mv = modelViewMatrix * vec4(p,1.0);
+          float dist = -mv.z;
+
+          // twinkle
+          float tw = 0.6 + 0.4*sin(uTime*1.8 + aSeed*3.0);
+          vBright = aBright * tw;
+
+          // depth-of-field: sharp near focus, blurred far -> camera-lens feel
+          vBlur = clamp(abs(dist - uFocus) / 280.0, 0.0, 1.0);
+          // fade at the very ends of the stream so wrap is invisible
+          vEdgeFade = smoothstep(uDepth, uDepth*0.55, abs(z));
+
+          float size = aSize * (300.0/dist) * uPixel;
+          size *= (1.0 + vBlur*2.6);                 // blurred ones bloom larger/softer
+          gl_PointSize = clamp(size, 0.0, 64.0);
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader:`
+        precision highp float;
+        uniform vec3 uIndigo; uniform vec3 uSoft;
+        varying float vBright; varying float vBlur; varying float vEdgeFade;
+        void main(){
+          vec2 uv = gl_PointCoord - 0.5;
+          float d = length(uv);
+          if(d>0.5) discard;
+          // soft core, softer when "out of focus"
+          float core = smoothstep(0.5, 0.0, d);
+          float soft = pow(core, mix(2.4, 1.1, vBlur));
+          float alpha = soft * vEdgeFade;
+          // hot nodes lean white-indigo, cool ones deep indigo
+          vec3 col = mix(uIndigo, mix(uSoft, vec3(1.0), 0.5), clamp(vBright-0.6,0.0,1.0));
+          // out-of-focus -> dimmer + more saturated indigo (atmosphere)
+          col = mix(col, uIndigo, vBlur*0.5);
+          float intensity = vBright * (1.0 - vBlur*0.55);
+          gl_FragColor = vec4(col * intensity, alpha * (0.85 - vBlur*0.45));
+        }`
+    });
+
+    const points = new THREE.Points(geo, mat);
+    scene.add(points);
+
+    // a faint distant haze plane for atmosphere
+    const haze = new THREE.Mesh(
+      new THREE.PlaneGeometry(1600,1000),
+      new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+        uniforms:{uTime:uniforms.uTime,uIndigo:{value:INDIGO}},
+        vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+        fragmentShader:`varying vec2 vUv; uniform float uTime; uniform vec3 uIndigo;
+          void main(){ vec2 c=vUv-0.5; float r=length(c);
+            float g=smoothstep(0.6,0.0,r)*0.18; g*= 0.7+0.3*sin(uTime*0.4);
+            gl_FragColor=vec4(uIndigo*g, g);}`}));
+    haze.position.z = -420;
+    scene.add(haze);
+
+    // ---- Bloom ----
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.9, 0.7, 0.0);
+    bloom.strength = 1.15; bloom.radius = 0.85; bloom.threshold = 0.0;
+    composer.addPass(bloom);
+
+    // ---- Lenis smooth scroll ----
+    const lenis = new Lenis({ lerp:0.085, wheelMultiplier:0.9, smoothWheel:true });
+    let scrollProgress = 0, rawVel = 0;
+    lenis.on('scroll', (e)=>{
+      const max = document.documentElement.scrollHeight - innerHeight;
+      scrollProgress = max>0 ? e.scroll/max : 0;
+      rawVel = e.velocity || 0;
+    });
+    function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+
+    // pointer parallax
+    let px=0, py=0, tpx=0, tpy=0;
+    addEventListener('pointermove', e=>{ tpx=(e.clientX/innerWidth-0.5); tpy=(e.clientY/innerHeight-0.5); });
+
+    // ---- Render loop ----
+    const clock = new THREE.Clock();
+    let velSmooth = 0;
+    function animate(){
+      const dt = clock.getDelta();
+      uniforms.uTime.value += dt;
+
+      velSmooth += (Math.min(Math.abs(rawVel)*0.06, 2.2) - velSmooth)*0.06;
+      uniforms.uVel.value = velSmooth;
+      uniforms.uScroll.value = scrollProgress;
+
+      // camera flies forward through the stream as you scroll
+      const camZ = 90 - scrollProgress*150;       // 90 -> -60
+      camera.position.z += (camZ - camera.position.z)*0.06;
+      px += (tpx-px)*0.05; py += (tpy-py)*0.05;
+      camera.position.x += (px*22 - camera.position.x)*0.05;
+      camera.position.y += (-py*14 - camera.position.y)*0.05;
+      camera.lookAt(0,0,camera.position.z-120);
+
+      // focus tracks the camera so the "wall" of sharp particles stays ahead
+      uniforms.uFocus.value = 70 + scrollProgress*40;
+      // bloom eases up slightly as you dive in
+      bloom.strength = 1.15 + velSmooth*0.25;
+
+      composer.render();
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    addEventListener('resize', ()=>{
+      camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      composer.setSize(innerWidth, innerHeight);
+      bloom.setSize(innerWidth, innerHeight);
+      uniforms.uPixel.value = Math.min(window.devicePixelRatio,2);
+    });
+
+    // ---- Reveal-on-scroll + hero intro ----
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
+    },{threshold:0.18});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    // hero fade-in
+    addEventListener('load', ()=>{
+      setTimeout(()=>{ document.getElementById('eyebrow').style.transition='opacity 1s ease .1s'; document.getElementById('eyebrow').style.opacity=1; },200);
+    });
+    // anchor smooth-scroll via lenis
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{ const t=document.querySelector(a.getAttribute('href')); if(t){e.preventDefault(); lenis.scrollTo(t,{offset:0});} });
+    });
+  </script>
+</body>
+</html>
