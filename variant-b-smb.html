@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>automaitions — the work that runs your business</title>
+<meta name="description" content="We build the systems that run your business in the background — handled, before you ask. First system live in 30 days or you don't pay."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--indigo:#5B5BD6;--indigo-soft:#8C8CF0;--ink:#0A0A0A;--paper:#FAFAFA;--mut:#9b9bab;--line:rgba(255,255,255,.08)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body{background:radial-gradient(120% 80% at 50% -10%,rgba(91,91,214,.15),transparent 60%),radial-gradient(100% 60% at 82% 112%,rgba(91,91,214,.08),transparent 55%),#040406}
+  a{color:inherit;text-decoration:none}::selection{background:rgba(91,91,214,.4)}
+  #scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block}
+  .vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(125% 95% at 50% 42%,transparent 50%,rgba(4,4,6,.92) 100%)}
+  .ribbon{position:fixed;top:0;right:0;z-index:45;background:var(--indigo);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:7px 14px;border-bottom-left-radius:12px;box-shadow:0 6px 20px -6px rgba(91,91,214,.9)}
+  nav{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:18px clamp(20px,4vw,54px);transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
+  nav.solid{background:rgba(6,6,10,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:19px;letter-spacing:-.02em}
+  .brand .x{color:var(--indigo)}.brand .gl{width:26px;height:26px;border-radius:7px;background:var(--indigo);display:grid;place-items:center;box-shadow:0 6px 20px -6px rgba(91,91,214,.9)}.brand .gl svg{width:15px;height:15px;display:block}
+  .navcta{padding:9px 17px;border-radius:100px;background:var(--indigo);color:#fff;font-size:13.5px;font-weight:600;box-shadow:0 8px 28px -8px rgba(91,91,214,.8);transition:transform .25s}.navcta:hover{transform:translateY(-2px)}
+  main{position:relative;z-index:2}
+  section{padding:0 clamp(22px,7vw,150px);position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}.reveal.in{opacity:1;transform:none}
+  h1,h2,h3,.sub,p,.k{text-shadow:0 2px 34px rgba(4,4,6,.6),0 1px 4px rgba(4,4,6,.5)}
+  .x{color:var(--indigo)}.dim{color:#6b6b78}
+  .k{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--indigo-soft);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
+  .k::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--indigo);box-shadow:0 0 12px 1px var(--indigo)}
+  .btn{display:inline-block;padding:15px 28px;border-radius:100px;font-weight:600;font-size:15px;transition:transform .25s,box-shadow .35s,border-color .3s;cursor:pointer}
+  .btn.solid{background:var(--indigo);color:#fff;box-shadow:0 10px 40px -8px rgba(91,91,214,.7)}.btn.solid:hover{transform:translateY(-2px);box-shadow:0 16px 52px -6px rgba(91,91,214,.95)}
+  .btn.ghost{border:1px solid rgba(250,250,250,.2)}.btn.ghost:hover{border-color:rgba(250,250,250,.55)}
+  .ctarow{margin-top:34px;display:flex;gap:15px;flex-wrap:wrap;align-items:center}
+  .guar{margin-top:20px;font-size:13.5px;color:var(--indigo-soft);font-weight:600;display:inline-flex;align-items:center;gap:9px}
+  .guar::before{content:"";width:18px;height:18px;border-radius:5px;background:rgba(91,91,214,.2);border:1px solid var(--indigo);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238C8CF0' stroke-width='3'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");background-size:13px;background-repeat:no-repeat;background-position:center}
+  .hero{min-height:106vh}
+  h1{font-size:clamp(40px,7.4vw,112px);line-height:.95;font-weight:600;letter-spacing:-.045em;max-width:17ch}
+  .sub{margin-top:28px;font-size:clamp(16px,1.9vw,21px);line-height:1.55;max-width:46ch;color:#c7c7d2}
+  .ph-title{font-size:clamp(32px,5.4vw,76px);line-height:1.02;font-weight:600;letter-spacing:-.04em;max-width:18ch}
+  .lead{margin-top:24px;color:var(--mut);max-width:48ch;font-size:clamp(15px,1.8vw,19px);line-height:1.6}
+  .center{align-items:center;text-align:center}
+  .logomoment{min-height:120vh;justify-content:flex-start;padding-top:22vh;align-items:center;text-align:center}
+  .logomoment h2{font-size:clamp(30px,5.4vw,76px);font-weight:600;letter-spacing:-.04em;line-height:1}
+  .secthead{margin-bottom:46px}.secthead h3{font-size:clamp(26px,3.6vw,46px);font-weight:600;letter-spacing:-.035em;line-height:1.05;max-width:22ch}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .card{position:relative;padding:30px 26px 34px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.012));border:1px solid var(--line);backdrop-filter:blur(14px);overflow:hidden;transition:border-color .4s,transform .4s}
+  .card:hover{border-color:rgba(91,91,214,.6);transform:translateY(-5px)}.card::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 50% -10%,rgba(91,91,214,.25),transparent 70%);opacity:0;transition:opacity .4s}.card:hover::before{opacity:1}
+  .card .num{font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--indigo)}.card h4{margin-top:16px;font-size:20px;font-weight:600;letter-spacing:-.02em}.card p{margin-top:10px;font-size:14px;line-height:1.55;color:var(--mut)}
+  /* offer stack */
+  .offerbox{max-width:620px;margin-top:8px;padding:34px 32px;border-radius:22px;background:linear-gradient(180deg,rgba(91,91,214,.12),rgba(255,255,255,.02));border:1px solid rgba(91,91,214,.35);backdrop-filter:blur(16px)}
+  .offerbox ul{list-style:none;display:flex;flex-direction:column;gap:13px;margin:18px 0 22px}
+  .offerbox li{position:relative;padding-left:30px;font-size:15.5px;line-height:1.45;color:#dcdce4}
+  .offerbox li::before{content:"";position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:5px;background:rgba(91,91,214,.25);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238C8CF0' stroke-width='3'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center}
+  .offerbox .stamp{font-size:13px;color:var(--indigo-soft);font-weight:700;letter-spacing:.03em;border-top:1px solid rgba(91,91,214,.3);padding-top:16px}
+  /* ladder */
+  .ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
+  .rung{padding:24px 20px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+  .rung .s{font-size:12px;font-weight:700;color:var(--indigo);letter-spacing:.08em}.rung h4{margin-top:10px;font-size:17px;font-weight:600;letter-spacing:-.02em}.rung p{margin-top:8px;font-size:13.5px;color:var(--mut);line-height:1.5}
+  /* demo */
+  .demo{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .demo .copy h3{font-size:clamp(26px,3.6vw,44px);font-weight:600;letter-spacing:-.035em;line-height:1.05}.demo .copy p{margin-top:18px;color:var(--mut);font-size:clamp(15px,1.7vw,18px);line-height:1.6;max-width:40ch}
+  .phone{justify-self:center;width:min(360px,86vw);border-radius:34px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(18px);box-shadow:0 40px 120px -30px rgba(91,91,214,.5)}
+  .phone .bar{display:flex;align-items:center;gap:8px;padding:4px 6px 14px}.phone .bar .dot{width:9px;height:9px;border-radius:50%;background:var(--indigo)}.phone .bar .who{font-size:13px;font-weight:600}.phone .bar .stat{margin-left:auto;font-size:11px;color:#6cd07f;display:flex;align-items:center;gap:6px}.phone .bar .stat::before{content:"";width:7px;height:7px;border-radius:50%;background:#6cd07f;box-shadow:0 0 8px #6cd07f}
+  .chat{min-height:330px;display:flex;flex-direction:column;gap:10px;padding:6px 4px}
+  .msg{max-width:80%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.45;opacity:0;transform:translateY(8px);animation:pop .4s ease forwards}.msg.them{align-self:flex-start;background:rgba(255,255,255,.08);border-bottom-left-radius:5px}.msg.bot{align-self:flex-end;background:var(--indigo);color:#fff;border-bottom-right-radius:5px;box-shadow:0 8px 26px -8px rgba(91,91,214,.8)}.msg .lbl{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:3px}
+  @keyframes pop{to{opacity:1;transform:none}}
+  .typing{align-self:flex-end;display:flex;gap:4px;padding:12px 16px;background:var(--indigo);border-radius:16px;border-bottom-right-radius:5px;opacity:0;animation:pop .3s ease forwards}.typing span{width:6px;height:6px;border-radius:50%;background:#fff;opacity:.7;animation:bnc 1s infinite}.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}@keyframes bnc{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;padding:14px 4px 4px}.chip{font-size:12px;font-weight:600;padding:7px 12px;border-radius:100px;background:rgba(108,208,127,.12);color:#8fe6a3;border:1px solid rgba(108,208,127,.3);opacity:0;transform:scale(.9);animation:pop .4s ease forwards}.chip::before{content:"✓ "}
+  .scrollcue{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:9px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#6b6b78}.scrollcue .bar{width:1px;height:42px;background:linear-gradient(var(--indigo),transparent);overflow:hidden;position:relative}.scrollcue .bar::after{content:"";position:absolute;top:-42px;left:0;width:1px;height:42px;background:linear-gradient(transparent,#fff);animation:drop 2.2s ease-in-out infinite}@keyframes drop{0%{transform:translateY(0)}70%,100%{transform:translateY(84px)}}
+  footer{position:relative;z-index:2;padding:54px clamp(22px,7vw,150px) 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;font-size:13px;color:#6b6b78}.footer .brand,footer .brand{font-size:16px;color:var(--paper)}
+  @media(max-width:900px){.grid3{grid-template-columns:1fr}.ladder{grid-template-columns:1fr 1fr}.demo{grid-template-columns:1fr;gap:34px}section{padding-top:96px;padding-bottom:60px}}
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas><div class="vignette"></div>
+  <div class="ribbon">VARIANT B · GENERAL SMB (service businesses)</div>
+  <nav id="nav">
+    <a class="brand" href="#top"><span class="gl"><svg viewBox="0 0 2048 2048"><g transform="translate(85.868,1807.36) scale(1.557066,-1.557066)"><path d="M428 -20C583 -20 691 42 752 157H761V0H1089V759C1089 999 870 1132 592 1132C312 1132 136 1001 92 810L408 769C427 839 492 884 589 884C684 884 741 840 741 763V759C741 690 665 676 476 660C250 641 60 558 60 310C60 89 213 -20 428 -20ZM534 211C450 211 390 251 390 326C390 400 448 444 551 459C616 469 704 484 744 505V398C744 288 651 211 534 211Z" fill="#fff"/></g></svg></span><span>autom<span class="x">ai</span>tions</span></a>
+    <a class="navcta" href="#start">Get your automation map</a>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <span class="k reveal">ai operations for service businesses</span>
+      <h1 class="reveal">The work that runs your business — <span class="x">handled</span>, before you ask.</h1>
+      <p class="sub reveal">automaitions builds the systems underneath your business — intake, follow-up, back-office, the daily brief — wired into the tools you already use and running as one loop. You stop doing the work the work should do itself.</p>
+      <div class="ctarow reveal"><a class="btn solid" href="#start">Get your automation map</a><a class="btn ghost" href="#mech">See how it works</a></div>
+      <span class="guar reveal">First system live in 30 days — or you don't pay.</span>
+      <div class="scrollcue"><span>Scroll</span><span class="bar"></span></div>
+    </section>
+
+    <section class="center">
+      <h2 class="reveal" style="font-size:clamp(28px,5vw,68px);font-weight:500;letter-spacing:-.04em;line-height:1.05;max-width:21ch">You hired people to run the work. <b style="font-weight:600">The work should run itself</b> — and just tell you when it's <span class="x">done</span>.</h2>
+      <p class="lead reveal" style="text-align:center">More staff doing the same repetitions isn't the answer. The lead that waited till morning, the quote nobody chased, the report you rebuilt by hand — those are systems, not jobs. We build the systems.</p>
+    </section>
+
+    <section class="logomoment" id="mech">
+      <span class="k reveal">the mechanism</span>
+      <h2 class="reveal">The Foundation Layer.</h2>
+      <p class="lead reveal" style="text-align:center;max-width:42ch">Not another tool to log into. Not a chatbot. The operating layer underneath your business — the integrations, workflows and maintenance that turn the apps you already pay for into one system that just runs. That's why it sticks when DIY automations didn't.</p>
+    </section>
+
+    <section>
+      <div class="secthead reveal"><span class="k">what we build</span><h3>Four systems, taken off your plate for good.</h3></div>
+      <div class="grid3" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card reveal"><div class="num">01</div><h4>Always-on intake</h4><p>Leads, DMs and forms answered in seconds, qualified, logged and routed. 3am or peak hour, same response.</p></div>
+        <div class="card reveal"><div class="num">02</div><h4>Follow-up engine</h4><p>Quotes chased, reviews requested, no-shows rebooked, dormant clients re-woken. Revenue recovered.</p></div>
+        <div class="card reveal"><div class="num">03</div><h4>Back-office on rails</h4><p>Invoices reconciled, reports built, data moved between tools that don't talk. The admin, gone.</p></div>
+        <div class="card reveal"><div class="num">04</div><h4>The morning brief</h4><p>One clear read daily: what moved, what's stuck, what needs you. The operation, before coffee.</p></div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="demo">
+        <div class="copy">
+          <span class="k reveal">the loop, running</span>
+          <h3 class="reveal">A lead lands at 11pm.<br>By morning it's <span class="x">booked, quoted and logged.</span></h3>
+          <p class="reveal">No one was at the desk. The foundation layer read it, qualified it, quoted it, booked the job and synced it across your tools — then put it in your morning brief. Every time, no babysitting.</p>
+        </div>
+        <div class="phone reveal"><div class="bar"><span class="dot"></span><span class="who">automaitions</span><span class="stat">Live</span></div><div class="chat" id="chat"></div></div>
+      </div>
+    </section>
+
+    <section id="offer">
+      <span class="k reveal">the offer</span>
+      <h2 class="ph-title reveal">First system live in 30 days — or you <span class="x">don't pay</span>.</h2>
+      <div class="offerbox reveal">
+        <ul>
+          <li>A mapped automation plan from one call — yours to keep, even if we never work together</li>
+          <li>Your single highest-leverage system, built into the tools you already use</li>
+          <li>Live and monitored — we watch it and fix issues fast</li>
+          <li>You approve once. Then it just runs.</li>
+        </ul>
+        <div class="stamp">⎯ If it's not live and running in 30 days, you pay nothing. The risk is ours.</div>
+      </div>
+    </section>
+
+    <section id="start">
+      <div class="secthead reveal"><span class="k">how it starts</span><h3>Four rungs. Start free, stack as you grow.</h3></div>
+      <div class="ladder">
+        <div class="rung reveal"><div class="s">01 · FREE</div><h4>Automation map</h4><p>Two lines about what eats your week. We send back the one system worth building first.</p></div>
+        <div class="rung reveal"><div class="s">02 · CALL</div><h4>Strategy call</h4><p>30 minutes. We scope it, price it, and agree the build — no deck, no pressure.</p></div>
+        <div class="rung reveal"><div class="s">03 · BUILD</div><h4>First system</h4><p>Live in under 30 days, wired into your stack. You approve once.</p></div>
+        <div class="rung reveal"><div class="s">04 · MANAGED</div><h4>The whole loop</h4><p>We run and monitor it, then stack the next system. One owner, one engine.</p></div>
+      </div>
+      <div class="ctarow reveal"><a class="btn solid" href="mailto:hello@automaitions.com?subject=Automation%20map%20request">Get your automation map</a><span class="guar">First system live in 30 days — or you don't pay.</span></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="brand"><span class="gl"><svg viewBox="0 0 2048 2048"><g transform="translate(85.868,1807.36) scale(1.557066,-1.557066)"><path d="M428 -20C583 -20 691 42 752 157H761V0H1089V759C1089 999 870 1132 592 1132C312 1132 136 1001 92 810L408 769C427 839 492 884 589 884C684 884 741 840 741 763V759C741 690 665 676 476 660C250 641 60 558 60 310C60 89 213 -20 428 -20ZM534 211C450 211 390 251 390 326C390 400 448 444 551 459C616 469 704 484 744 505V398C744 288 651 211 534 211Z" fill="#fff"/></g></svg></span><span>autom<span class="x">ai</span>tions</span></div>
+    <div>The work that runs your business — handled, before you ask.</div>
+    <div>© 2026 · hello@automaitions.com</div>
+  </footer>
+
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    const canvas=document.getElementById('scene');
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+    const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1400);camera.position.set(0,0,98);
+    const INDIGO=new THREE.Color(0x5B5BD6),SOFT=new THREE.Color(0x8C8CF0);
+    const COUNT=8000;const seeds=new Float32Array(COUNT),sizes=new Float32Array(COUNT),bright=new Float32Array(COUNT);
+    for(let i=0;i<COUNT;i++){seeds[i]=Math.random();sizes[i]=0.5+Math.random()*Math.random()*3.2;bright[i]=0.3+Math.pow(Math.random(),2.2)*1.5;}
+    const T_NEBULA=new Float32Array(COUNT*3),T_CHAOS=new Float32Array(COUNT*3),T_LOGO=new Float32Array(COUNT*3),T_PIPE=new Float32Array(COUNT*3),T_CONV=new Float32Array(COUNT*3);
+    for(let i=0;i<COUNT;i++){
+      const a=Math.random()*Math.PI*2,r=Math.pow(Math.random(),1.8)*72,z=(Math.random()*2-1)*220;
+      T_NEBULA[i*3]=Math.cos(a)*r+Math.sin(z*0.012)*24;T_NEBULA[i*3+1]=Math.sin(a)*r*0.46+Math.cos(z*0.009)*10;T_NEBULA[i*3+2]=z;
+      const u=Math.random()*2-1,th=Math.random()*Math.PI*2,rr=40+Math.random()*55;
+      T_CHAOS[i*3]=Math.sqrt(1-u*u)*Math.cos(th)*rr;T_CHAOS[i*3+1]=Math.sqrt(1-u*u)*Math.sin(th)*rr*0.7;T_CHAOS[i*3+2]=u*rr;
+      const cu=Math.random()*2-1,cth=Math.random()*Math.PI*2,cr=Math.pow(Math.random(),0.6)*13;
+      T_CONV[i*3]=Math.sqrt(1-cu*cu)*Math.cos(cth)*cr;T_CONV[i*3+1]=Math.sqrt(1-cu*cu)*Math.sin(cth)*cr-2;T_CONV[i*3+2]=cu*cr;
+    }
+    const NODES=[-48,-16,16,48];
+    for(let i=0;i<COUNT;i++){if(i%5<3){const n=NODES[i%4],g=()=>(Math.random()+Math.random()+Math.random()-1.5)*9;T_PIPE[i*3]=n+g();T_PIPE[i*3+1]=g()*0.8;T_PIPE[i*3+2]=g()*0.8;}else{const x=-60+Math.random()*120;T_PIPE[i*3]=x;T_PIPE[i*3+1]=Math.sin(x*0.12)*4+(Math.random()-0.5)*3;T_PIPE[i*3+2]=(Math.random()-0.5)*3;}}
+    T_LOGO.set(T_NEBULA);
+    const GLYPH=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2048 2048' width='2048' height='2048'><g transform='translate(85.868,1807.360) scale(1.557066,-1.557066)'><path d='M428 -20C583 -20 691 42 752 157H761V0H1089V759C1089 999 870 1132 592 1132C312 1132 136 1001 92 810L408 769C427 839 492 884 589 884C684 884 741 840 741 763V759C741 690 665 676 476 660C250 641 60 558 60 310C60 89 213 -20 428 -20ZM534 211C450 211 390 251 390 326C390 400 448 444 551 459C616 469 704 484 744 505V398C744 288 651 211 534 211Z' fill='%23fff'/></g></svg>`;
+    const img=new Image();img.onload=()=>{const S=300,cv=document.createElement('canvas');cv.width=S;cv.height=S;const ctx=cv.getContext('2d');ctx.drawImage(img,0,0,S,S);const d=ctx.getImageData(0,0,S,S).data,pts=[];for(let y=0;y<S;y+=2)for(let x=0;x<S;x+=2)if(d[(y*S+x)*4+3]>120)pts.push([x,y]);for(let k=pts.length-1;k>0;k--){const j=(Math.random()*(k+1))|0;[pts[k],pts[j]]=[pts[j],pts[k]];}const fit=innerWidth<760?46:78,oy=-fit*0.14;for(let i=0;i<COUNT;i++){const p=pts[i%pts.length];T_LOGO[i*3]=(p[0]/S-0.5)*fit+(Math.random()-0.5)*0.6;T_LOGO[i*3+1]=-(p[1]/S-0.5)*fit+oy+(Math.random()-0.5)*0.6;T_LOGO[i*3+2]=(Math.random()-0.5)*6;}};img.src='data:image/svg+xml;utf8,'+GLYPH;
+    const STAGES=[T_NEBULA,T_CHAOS,T_LOGO,T_PIPE,T_CONV];
+    const ANCHORS=[['.hero',0],['.center',1],['.logomoment',2],['.grid3',3],['#demo',3],['#offer',4],['#start',4]];
+    let ANCH=[];function measureAnchors(){const mx=document.documentElement.scrollHeight-innerHeight;const sc=(window.__lenis&&window.__lenis.scroll)||0;ANCH=ANCHORS.map(([sel,m])=>{const el=document.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect();const c=r.top+sc+r.height/2-innerHeight/2;return{f:mx>0?c/mx:0,m};}).filter(Boolean).sort((a,b)=>a.f-b.f);}
+    function morphFromScroll(s){if(!ANCH.length)return 0;if(s<=ANCH[0].f)return ANCH[0].m;for(let i=0;i<ANCH.length-1;i++){const a=ANCH[i],b=ANCH[i+1];if(s<=b.f){const f=(s-a.f)/Math.max(b.f-a.f,1e-4);return a.m+(b.m-a.m)*(f*f*(3-2*f));}}return ANCH[ANCH.length-1].m;}
+    const geo=new THREE.BufferGeometry();const pos=new Float32Array(COUNT*3);pos.set(T_NEBULA);
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('aSeed',new THREE.BufferAttribute(seeds,1));geo.setAttribute('aSize',new THREE.BufferAttribute(sizes,1));geo.setAttribute('aBright',new THREE.BufferAttribute(bright,1));
+    const posAttr=geo.attributes.position;
+    const uniforms={uTime:{value:0},uPixel:{value:Math.min(devicePixelRatio,2)},uIndigo:{value:INDIGO},uSoft:{value:SOFT},uGlow:{value:0}};
+    const mat=new THREE.ShaderMaterial({uniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+      vertexShader:`attribute float aSeed;attribute float aSize;attribute float aBright;uniform float uTime;uniform float uPixel;varying float vB;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);float dist=-mv.z;float tw=0.65+0.35*sin(uTime*1.8+aSeed*30.0);vB=aBright*tw;float size=aSize*(330.0/dist)*uPixel;gl_PointSize=clamp(size,0.0,60.0);gl_Position=projectionMatrix*mv;}`,
+      fragmentShader:`precision highp float;uniform vec3 uIndigo;uniform vec3 uSoft;uniform float uGlow;varying float vB;void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;float soft=pow(smoothstep(0.5,0.0,d),2.0);vec3 col=mix(uIndigo,mix(uSoft,vec3(1.0),0.5),clamp(vB-0.6,0.0,1.0));gl_FragColor=vec4(col*vB*(1.0+uGlow),soft*0.92);}`});
+    scene.add(new THREE.Points(geo,mat));
+    const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.15,0.85,0.0);composer.addPass(bloom);
+    const lenis=new Lenis({lerp:0.085,wheelMultiplier:0.9,smoothWheel:true});window.__lenis=lenis;let scrollP=0,rawVel=0;
+    lenis.on('scroll',e=>{const mx=document.documentElement.scrollHeight-innerHeight;scrollP=mx>0?e.scroll/mx:0;rawVel=e.velocity||0;document.getElementById('nav').classList.toggle('solid',(e.scroll||0)>40);});
+    function rl(t){lenis.raf(t);requestAnimationFrame(rl);}requestAnimationFrame(rl);
+    let tpx=0,tpy=0,px=0,py=0;addEventListener('pointermove',e=>{tpx=e.clientX/innerWidth-0.5;tpy=e.clientY/innerHeight-0.5;});
+    const clock=new THREE.Clock();let vS=0,curM=0;
+    function animate(){const dt=Math.min(clock.getDelta(),0.05);uniforms.uTime.value+=dt;vS+=(Math.min(Math.abs(rawVel)*0.05,2.0)-vS)*0.06;const tgtM=morphFromScroll(scrollP);curM+=(tgtM-curM)*0.08;
+      const s=Math.min(Math.floor(curM),STAGES.length-2),f=curM-s,e=f*f*(3-2*f);const A=STAGES[s],B=STAGES[s+1],turb=Math.sin(Math.PI*f),tb=turb*7.0,t=uniforms.uTime.value,swirl=turb>0.02;
+      for(let i=0;i<COUNT;i++){const ix=i*3,iy=ix+1,iz=ix+2;let x=A[ix]+(B[ix]-A[ix])*e,y=A[iy]+(B[iy]-A[iy])*e,z=A[iz]+(B[iz]-A[iz])*e;if(swirl){const sd=seeds[i]*30.0;x+=Math.sin(t*0.9+sd)*tb*0.5;y+=Math.cos(t*0.8+sd*1.1)*tb*0.5;z+=Math.sin(t*0.7+sd*0.9)*tb;}pos[ix]=x;pos[iy]=y;pos[iz]=z;}
+      posAttr.needsUpdate=true;uniforms.uGlow.value=Math.max(0,(curM-3.5))*0.45+vS*0.15;
+      px+=(tpx-px)*0.05;py+=(tpy-py)*0.05;camera.position.x+=(px*16-camera.position.x)*0.05;camera.position.y+=(-py*10-camera.position.y)*0.05;const camZ=98-Math.min(curM,2)*6;camera.position.z+=(camZ-camera.position.z)*0.05;camera.lookAt(0,0,0);
+      bloom.strength=1.05+vS*0.25+uniforms.uGlow.value*0.8;composer.render();requestAnimationFrame(animate);}
+    animate();
+    addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloom.setSize(innerWidth,innerHeight);uniforms.uPixel.value=Math.min(devicePixelRatio,2);measureAnchors();});
+    const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in');}),{threshold:0.16});document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',ev=>{const t=document.querySelector(a.getAttribute('href'));if(t){ev.preventDefault();lenis.scrollTo(t,{offset:0});}}));
+    addEventListener('load',measureAnchors);measureAnchors();setTimeout(measureAnchors,1300);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measureAnchors);
+    // chat
+    const chat=document.getElementById('chat');const steps=[{t:'them',l:'New lead · 11:04pm',x:"Hey, do you do commercial jobs? Need a few done."},{typing:1,d:900},{t:'bot',l:'automaitions',x:"We do! What's the site size and suburb? I can pencil you in this week."},{t:'them',l:'Lead',x:"~400m², Southport."},{typing:1,d:800},{t:'bot',l:'automaitions',x:"Perfect — Thursday 9am held. Sending your confirmation + quote now."},{chips:['Booked','Quote sent','Logged to CRM','Added to brief']}];
+    let timers=[];function clearT(){timers.forEach(clearTimeout);timers=[];}
+    function runChat(){clearT();chat.innerHTML='';let delay=300;steps.forEach(step=>{timers.push(setTimeout(()=>{if(step.typing){const tp=document.createElement('div');tp.className='typing';tp.id='tp';tp.innerHTML='<span></span><span></span><span></span>';chat.appendChild(tp);timers.push(setTimeout(()=>{const ex=document.getElementById('tp');if(ex)ex.remove();},step.d));return;}if(step.chips){const w=document.createElement('div');w.className='chips';chat.appendChild(w);step.chips.forEach((c,k)=>timers.push(setTimeout(()=>{const ch=document.createElement('span');ch.className='chip';ch.textContent=c;w.appendChild(ch);},k*220)));return;}const m=document.createElement('div');m.className='msg '+step.t;m.innerHTML=`<span class="lbl">${step.l}</span>${step.x}`;chat.appendChild(m);},delay));delay+=step.typing?step.d+200:(step.chips?300:1500);});timers.push(setTimeout(runChat,delay+3500));}
+    new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)runChat();else clearT();}),{threshold:0.3}).observe(document.getElementById('demo'));
+  </script>
+</body>
+</html>
