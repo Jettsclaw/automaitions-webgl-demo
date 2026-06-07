@@ -13,7 +13,8 @@
   a{color:inherit;text-decoration:none}::selection{background:rgba(91,91,214,.45)}
   /* pinned cinematic video-texture background (scrubbed by scroll) */
   #stage{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;overflow:hidden;background:#040406}
-  #scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #scene{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
+  #vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
   #poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
   .scrim{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(4,4,6,.82) 0%,rgba(4,4,6,.5) 42%,rgba(4,4,6,.2) 100%)}
   .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -87,8 +88,7 @@
 </style>
 </head>
 <body>
-  <div id="stage"><canvas id="scene"></canvas><img id="poster" alt=""/></div>
-  <video id="vid" playsinline muted preload="auto" crossorigin="anonymous" style="display:none"></video>
+  <div id="stage"><video id="vid" playsinline muted loop autoplay preload="auto" crossorigin="anonymous"></video><canvas id="scene"></canvas><img id="poster" alt=""/></div>
   <div class="scrim"></div><div class="grain"></div>
 
   <nav id="nav">
@@ -232,19 +232,19 @@
       const lenis=new Lenis({lerp:0.09,smoothWheel:true});window.__lenis=lenis;
       lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add((t)=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
       lenis.on('scroll',e=>{document.getElementById('nav').classList.toggle('solid',(e.scroll||0)>40);});
-      let targetTime=0,vel=0;vid.pause();
-      vid.addEventListener('loadedmetadata',()=>{
-        ScrollTrigger.create({trigger:'main',start:'top top',end:'bottom bottom',scrub:true,
-          onUpdate:(self)=>{targetTime=self.progress*(vid.duration||0);vel=Math.min(Math.abs(self.getVelocity())/3000,2.0);uniforms.uScroll.value=self.progress;
-            document.getElementById('pct').textContent=String(Math.round(self.progress*100)).padStart(3,'0');
-            document.getElementById('cue').style.opacity=self.progress>0.02?0:0.8;}});
-      });
+      // autoplay muted loop = always has a live frame (iOS Safari won't decode a hidden/paused video).
+      // scroll drives the SHADER (warp + grade + velocity), so the footage still reacts to scroll — never black.
+      let vel=0;const playTry=()=>{const p=vid.play();if(p)p.catch(()=>{});};
+      playTry();vid.addEventListener('loadeddata',playTry,{once:true});
+      addEventListener('pointerdown',playTry,{once:true});addEventListener('touchstart',playTry,{once:true});
+      ScrollTrigger.create({trigger:'main',start:'top top',end:'bottom bottom',scrub:true,
+        onUpdate:(self)=>{vel=Math.min(Math.abs(self.getVelocity())/3000,2.0);uniforms.uScroll.value=self.progress;
+          vid.playbackRate=1+vel*0.6;
+          document.getElementById('pct').textContent=String(Math.round(self.progress*100)).padStart(3,'0');
+          document.getElementById('cue').style.opacity=self.progress>0.02?0:0.8;}});
       const clock=new THREE.Clock();let vS=0;
       function loop(){uniforms.uTime.value+=clock.getDelta();vS+=(vel-vS)*0.08;uniforms.uVel.value=vS;
-        if(vid.duration){const d=targetTime-vid.currentTime;if(Math.abs(d)>0.001)vid.currentTime+=d*0.25;}
-        if(vid.readyState>=2)tex.needsUpdate=true;
-        render();requestAnimationFrame(loop);}
-      vid.addEventListener('loadeddata',()=>{vid.play().then(()=>{vid.pause();vid.currentTime=0.04;}).catch(()=>{vid.currentTime=0.04;});},{once:true});
+        if(vid.readyState>=2)tex.needsUpdate=true;render();requestAnimationFrame(loop);}
       loop();
     }
     // reveals
