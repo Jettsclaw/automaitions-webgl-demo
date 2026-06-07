@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>animate-lab — curl-noise flow + DOF particle engine</title>
+<style>
+  html,body{margin:0;height:100%;background:#04060c;overflow:hidden;font-family:Inter,system-ui,sans-serif;color:#dfe6f4}
+  #c{position:fixed;inset:0;display:block}
+  .ui{position:fixed;left:24px;bottom:22px;z-index:5;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8ea0c8}
+  .ui b{color:#7fd0ff}
+  .t{position:fixed;left:24px;top:50%;transform:translateY(-50%);z-index:5;max-width:13ch;font-weight:800;font-size:clamp(28px,5vw,68px);line-height:.95;letter-spacing:-.03em;text-shadow:0 4px 40px rgba(0,0,0,.6)}
+  .hint{position:fixed;right:24px;bottom:22px;z-index:5;font-size:11px;color:#5e6c8c;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="t">Curl<br>flow.</div>
+<div class="ui"><b id="shape">torus knot</b> · 120k particles · curl-noise + bokeh DOF</div>
+<div class="hint">drag to orbit · scroll to morph</div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x04060c,0.018);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,200);camera.position.set(0,0,46);
+const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=0.06;controls.enablePan=false;controls.minDistance=22;controls.maxDistance=80;controls.autoRotate=true;controls.autoRotateSpeed=0.35;
+
+// ---- particle targets (procedural shapes) ----
+const N=120000;
+function sphere(i){const u=Math.random()*2-1,th=Math.random()*6.2832,r=14*Math.cbrt(Math.random())*0.8+11*0.0;const s=Math.sqrt(1-u*u);const rr=14*Math.cbrt(Math.random());return [s*Math.cos(th)*rr, s*Math.sin(th)*rr, u*rr];}
+function torusKnot(i){const t=Math.random()*6.2832,p=2,q=3,R=10;const r=4+ (Math.random()-0.5)*2.2;
+  const cx=Math.cos(p*t)*(R+r*Math.cos(q*t)),cy=Math.sin(p*t)*(R+r*Math.cos(q*t)),cz=r*Math.sin(q*t);return [cx,cy,cz];}
+function galaxy(i){const arm=i%3,a=Math.random()*6.2832,rad=2+Math.pow(Math.random(),0.6)*18,spin=a+rad*0.28+arm*2.094;return [Math.cos(spin)*rad,(Math.random()-0.5)*2.5,Math.sin(spin)*rad];}
+const SHAPES=[sphere,torusKnot,galaxy];const SHAPE_NAMES=['sphere','torus knot','galaxy'];
+const A=new Float32Array(N*3),B=new Float32Array(N*3),seed=new Float32Array(N),sz=new Float32Array(N);
+function fill(buf,fn){for(let i=0;i<N;i++){const p=fn(i);buf[i*3]=p[0];buf[i*3+1]=p[1];buf[i*3+2]=p[2];}}
+fill(A,SHAPES[1]);fill(B,SHAPES[2]);
+for(let i=0;i<N;i++){seed[i]=Math.random();sz[i]=0.5+Math.random()*Math.random()*2.2;}
+const geo=new THREE.BufferGeometry();
+geo.setAttribute('position',new THREE.BufferAttribute(A.slice(),3));
+geo.setAttribute('aA',new THREE.BufferAttribute(A,3));
+geo.setAttribute('aB',new THREE.BufferAttribute(B,3));
+geo.setAttribute('aSeed',new THREE.BufferAttribute(seed,1));
+geo.setAttribute('aSize',new THREE.BufferAttribute(sz,1));
+
+const uni={uTime:{value:0},uMorph:{value:0},uPixel:{value:Math.min(devicePixelRatio,2)},
+  uC1:{value:new THREE.Color(0x2b6cff)},uC2:{value:new THREE.Color(0x9b5bff)},uC3:{value:new THREE.Color(0xbff3ff)}};
+const mat=new THREE.ShaderMaterial({uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  vertexShader:`
+    uniform float uTime,uMorph,uPixel; attribute vec3 aA,aB; attribute float aSeed,aSize;
+    varying float vB; varying vec3 vCol; uniform vec3 uC1,uC2,uC3;
+    // --- simplex-ish noise + curl (3D) ---
+    vec3 hash3(vec3 p){p=vec3(dot(p,vec3(127.1,311.7,74.7)),dot(p,vec3(269.5,183.3,246.1)),dot(p,vec3(113.5,271.9,124.6)));return fract(sin(p)*43758.5453)*2.0-1.0;}
+    float noise(vec3 p){vec3 i=floor(p),f=fract(p);vec3 u=f*f*(3.0-2.0*f);
+      return mix(mix(mix(dot(hash3(i+vec3(0,0,0)),f-vec3(0,0,0)),dot(hash3(i+vec3(1,0,0)),f-vec3(1,0,0)),u.x),
+                     mix(dot(hash3(i+vec3(0,1,0)),f-vec3(0,1,0)),dot(hash3(i+vec3(1,1,0)),f-vec3(1,1,0)),u.x),u.y),
+                 mix(mix(dot(hash3(i+vec3(0,0,1)),f-vec3(0,0,1)),dot(hash3(i+vec3(1,0,1)),f-vec3(1,0,1)),u.x),
+                     mix(dot(hash3(i+vec3(0,1,1)),f-vec3(0,1,1)),dot(hash3(i+vec3(1,1,1)),f-vec3(1,1,1)),u.x),u.y),u.z);}
+    vec3 curl(vec3 p){float e=0.35;
+      float x=noise(p+vec3(0,e,0))-noise(p-vec3(0,e,0));float y=noise(p+vec3(0,0,e))-noise(p-vec3(0,0,e));float z=noise(p+vec3(e,0,0))-noise(p-vec3(e,0,0));
+      float x2=noise(p+vec3(0,0,e))-noise(p-vec3(0,0,e));
+      return normalize(vec3(x - (noise(p+vec3(0,0,e))-noise(p-vec3(0,0,e))), y - (noise(p+vec3(e,0,0))-noise(p-vec3(e,0,0))), z - (noise(p+vec3(0,e,0))-noise(p-vec3(0,e,0)))+1e-5));}
+    void main(){
+      float m=uMorph; float d=aSeed*0.3; float t=clamp((m-d)/(1.0-d),0.0,1.0); t=t*t*(3.0-2.0*t);
+      vec3 pos=mix(aA,aB,t);
+      // organic curl-noise flow on top — particles breathe along streamlines
+      float swirl=0.6+sin(m*3.14159)*1.4;           // flow intensifies mid-morph
+      pos += curl(pos*0.12 + uTime*0.08 + aSeed*5.0) * (1.0*swirl + 0.4);
+      pos += curl(pos*0.05 - uTime*0.04) * 0.5;
+      vec4 mv=modelViewMatrix*vec4(pos,1.0);
+      float twinkle=0.6+0.4*sin(uTime*1.6+aSeed*40.0); vB=twinkle;
+      // depth-tinted colour (near=cyan/white, far=indigo)
+      float depth=clamp((-mv.z-26.0)/40.0,0.0,1.0);
+      vCol=mix(mix(uC3,uC1,depth), uC2, 0.4+0.3*sin(aSeed*6.28));
+      gl_PointSize = aSize * (235.0/-mv.z) * uPixel;
+      gl_Position=projectionMatrix*mv;
+    }`,
+  fragmentShader:`varying float vB; varying vec3 vCol;
+    void main(){vec2 u=gl_PointCoord-0.5;float d=length(u);if(d>0.5)discard;float s=pow(smoothstep(0.5,0.0,d),1.7);gl_FragColor=vec4(vCol*vB*1.05,s*0.14);}`});
+scene.add(new THREE.Points(geo,mat));
+
+// ---- postprocessing: bloom + real DOF (bokeh) + film grain ----
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.72,0.6,0.12);composer.addPass(bloom);
+const bokeh=new BokehPass(scene,camera,{focus:46.0,aperture:0.0016,maxblur:0.008});composer.addPass(bokeh);
+const grain={uniforms:{tDiffuse:{value:null},uT:{value:0}},
+  vertexShader:`varying vec2 v;void main(){v=uv;gl_Position=vec4(position,1.0);}`,
+  fragmentShader:`uniform sampler2D tDiffuse;uniform float uT;varying vec2 v;float h(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5);}
+    void main(){vec3 c=texture2D(tDiffuse,v).rgb;c+=(h(v+uT)-0.5)*0.05;float d=distance(v,vec2(0.5));c*=smoothstep(1.15,0.4,d)*0.5+0.55;gl_FragColor=vec4(c,1.0);}`};
+const grainPass=new ShaderPass(grain);composer.addPass(grainPass);
+
+// ---- morph driver (scroll) + shape cycling ----
+let target=0, shapeI=1;
+addEventListener('wheel',e=>{target=Math.min(1,Math.max(0,target+e.deltaY*0.0011));},{passive:true});
+addEventListener('pointermove',e=>{if(e.pressure>0)return;});
+function nextShape(){ // when morph completes, roll B into A and load a new B
+  if(uni.uMorph.value>0.985){const cur=geo.attributes.aB.array;geo.attributes.aA.array.set(cur);geo.attributes.aA.needsUpdate=true;
+    shapeI=(shapeI+1)%SHAPES.length;fill(geo.attributes.aB.array,SHAPES[(shapeI+1)%SHAPES.length]);geo.attributes.aB.needsUpdate=true;
+    target=0;uni.uMorph.value=0;document.getElementById('shape').textContent=SHAPE_NAMES[(shapeI+1)%SHAPES.length];}
+}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloom.setSize(innerWidth,innerHeight);});
+const clock=new THREE.Clock();
+function loop(){const dt=clock.getDelta();uni.uTime.value+=dt;
+  uni.uMorph.value+=(target-uni.uMorph.value)*0.05; nextShape();
+  controls.update();grainPass.uniforms.uT.value+=dt;
+  composer.render();requestAnimationFrame(loop);}
+loop();
+</script>
+</body>
+</html>
