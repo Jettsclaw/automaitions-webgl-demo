@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>automaitions — contact / particle text</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#FAFAFA;--soft:#8C8CF0;--indigo:#5B5BD6;--mut:#9b9bab;--line:rgba(255,255,255,.1)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  body{background:radial-gradient(120% 80% at 50% -10%,rgba(91,91,214,.16),transparent 58%),#040406}
+  #pcanvas{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;display:block}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(22px,4vw,54px);mix-blend-mode:difference}
+  .wm{font-weight:600;font-size:18px;letter-spacing:-.02em}.wm .x{color:var(--soft)}
+  .tabs{display:flex;gap:20px;font-size:13px;font-weight:500}.tabs a{opacity:.8}.tabs a.on{opacity:1;color:var(--soft)}.tabs a:hover{opacity:1}
+  main{position:relative;z-index:3;min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(22px,7vw,150px) clamp(40px,7vh,80px)}
+  .lead{max-width:30ch}
+  .lead .k{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);font-weight:600;margin-bottom:14px}
+  .lead h2{font-size:clamp(30px,4.6vw,60px);font-weight:700;letter-spacing:-.04em;line-height:1;text-shadow:0 3px 40px rgba(4,4,6,.8)}
+  form{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;max-width:680px;pointer-events:auto}
+  input{flex:1 1 200px;padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:#fff;font-family:inherit;font-size:15px}
+  input:focus{outline:none;border-color:var(--indigo);background:rgba(91,91,214,.07)}
+  button{padding:14px 26px;border-radius:100px;background:var(--paper);color:#0a0a0a;font-family:inherit;font-weight:600;font-size:15px;border:none;cursor:pointer;transition:transform .25s,box-shadow .3s}
+  button:hover{transform:translateY(-2px);box-shadow:0 14px 40px -10px rgba(140,140,240,.7)}
+  .re{margin-top:14px;font-size:13px;color:var(--mut)}.re a{color:var(--soft)}
+  .corner{position:fixed;top:50%;right:clamp(14px,2vw,28px);z-index:6;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8a8a98;writing-mode:vertical-rl;transform:translateY(-50%)}
+  @media(max-width:760px){.tabs{display:none}.corner{display:none}main{justify-content:flex-end}}
+</style>
+</head>
+<body>
+  <canvas id="pcanvas"></canvas>
+  <nav>
+    <div class="wm">autom<span class="x">ai</span>tions</div>
+    <div class="tabs"><a href="index.html">home</a><a href="systems.html">systems</a><a href="process.html">process</a><a href="work.html">work</a><a href="about.html">about</a><a href="contact.html" class="on">contact</a></div>
+  </nav>
+  <main>
+    <div class="lead">
+      <div class="k">006 — contact</div>
+      <h2>Tell us what runs your day.</h2>
+      <form id="cf">
+        <input id="em" type="email" placeholder="your email" required>
+        <input id="ms" type="text" placeholder="what eats your week?">
+        <button type="submit">Send it through →</button>
+      </form>
+      <div class="re">Opens your email, pre-filled. Or <a href="mailto:hello@automaitions.com">hello@automaitions.com</a> · move your cursor through the name ↑</div>
+    </div>
+  </main>
+  <div class="corner">006 — contact · particle text</div>
+
+  <script>
+  const cv=document.getElementById('pcanvas'),ctx=cv.getContext('2d');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W,H,DPR=Math.min(devicePixelRatio,2),parts=[],mouse={x:-9999,y:-9999};
+  function buildTargets(){
+    // render the word to an offscreen canvas, sample filled pixels
+    const oc=document.createElement('canvas');oc.width=W;oc.height=H;const o=oc.getContext('2d');
+    o.fillStyle='#fff';o.textAlign='center';o.textBaseline='middle';
+    let fs=Math.min(W*0.16,260);o.font=`800 ${fs}px Inter, sans-serif`;
+    // shrink to fit width
+    while(o.measureText('automaitions').width>W*0.92 && fs>20){fs-=4;o.font=`800 ${fs}px Inter, sans-serif`;}
+    o.fillText('automaitions',W/2,H*0.42);
+    const data=o.getImageData(0,0,W,H).data;
+    const gap=Math.max(4,Math.round(fs/26));
+    const targets=[];
+    for(let y=0;y<H;y+=gap)for(let x=0;x<W;x+=gap){if(data[(y*W+x)*4+3]>128)targets.push({x,y});}
+    // map targets to particles (reuse/spawn)
+    parts=targets.map((t,i)=>{const p=parts[i]||{x:Math.random()*W,y:Math.random()*H,vx:0,vy:0};
+      p.tx=t.x;p.ty=t.y;p.c=t.x/W;return p;});
+  }
+  function resize(){W=cv.width=innerWidth*DPR;H=cv.height=innerHeight*DPR;cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';buildTargets();}
+  addEventListener('resize',resize);
+  addEventListener('pointermove',e=>{mouse.x=e.clientX*DPR;mouse.y=e.clientY*DPR;});
+  addEventListener('pointerleave',()=>{mouse.x=mouse.y=-9999;});
+  // wait for font then build
+  (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{resize();});
+  resize();
+
+  function frame(t){
+    ctx.clearRect(0,0,W,H);
+    const rr=120*DPR;
+    for(const p of parts){
+      // pointer repulsion
+      const dx=p.x-mouse.x,dy=p.y-mouse.y,d2=dx*dx+dy*dy;
+      if(d2<rr*rr){const d=Math.sqrt(d2)||1,f=(rr-d)/rr;p.vx+=(dx/d)*f*6;p.vy+=(dy/d)*f*6;}
+      // spring to target
+      p.vx+=(p.tx-p.x)*0.012;p.vy+=(p.ty-p.y)*0.012;
+      p.vx*=0.86;p.vy*=0.86;p.x+=p.vx;p.y+=p.vy;
+      const hot=Math.min(1,Math.hypot(p.vx,p.vy)/6);
+      // indigo→white by column + heat
+      const r=Math.round(91+(255-91)*(p.c*0.5+hot*0.6));
+      const g=Math.round(91+(140-91)*(p.c)+hot*100);
+      const b=Math.round(214+(255-214)*hot);
+      ctx.fillStyle=`rgb(${r},${Math.min(255,g)},${b})`;
+      ctx.fillRect(p.x,p.y,2*DPR,2*DPR);
+    }
+    if(!reduced)requestAnimationFrame(frame);
+  }
+  if(reduced){ // settle to targets instantly
+    for(const p of parts){p.x=p.tx;p.y=p.ty;}frame(0);
+  } else requestAnimationFrame(frame);
+
+  document.getElementById('cf').addEventListener('submit',e=>{e.preventDefault();
+    const em=document.getElementById('em').value||'',ms=document.getElementById('ms').value||'';
+    window.location.href=`mailto:hello@automaitions.com?subject=${encodeURIComponent('Build enquiry')}&body=${encodeURIComponent('Email: '+em+'\n\nWhat eats my week:\n'+ms)}`;});
+  </script>
+</body>
+</html>

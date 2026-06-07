@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>automaitions — systems / particle morph</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#FAFAFA;--soft:#8C8CF0;--indigo:#5B5BD6;--mut:#9b9bab;--line:rgba(255,255,255,.08)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  body{background:radial-gradient(120% 80% at 50% -10%,rgba(91,91,214,.15),transparent 60%),#040406}
+  #scene{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;display:block}
+  .vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(130% 100% at 50% 45%,transparent 52%,rgba(4,4,6,.9) 100%)}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(22px,4vw,54px);mix-blend-mode:difference}
+  .wm{font-weight:600;font-size:18px;letter-spacing:-.02em}.wm .x{color:var(--soft)}
+  .tabs{display:flex;gap:20px;font-size:13px;font-weight:500}.tabs a{opacity:.8}.tabs a.on{opacity:1;color:var(--soft)}.tabs a:hover{opacity:1}
+  main{position:relative;z-index:3}
+  section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(22px,7vw,150px)}
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}.reveal.in{opacity:1;transform:none}
+  .k{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);font-weight:600;margin-bottom:18px;display:inline-flex;align-items:center;gap:10px}
+  .k::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--indigo);box-shadow:0 0 12px 1px var(--indigo)}
+  h1,h2,h3,.sub,p{text-shadow:0 2px 34px rgba(4,4,6,.6)}
+  .x{color:var(--indigo)}.dim{color:#6b6b78}
+  h1{font-size:clamp(44px,8vw,120px);line-height:.93;font-weight:600;letter-spacing:-.045em;max-width:16ch}
+  .sub{margin-top:28px;font-size:clamp(16px,1.9vw,21px);line-height:1.55;max-width:44ch;color:#c7c7d2}
+  .logomoment{min-height:122vh;justify-content:flex-start;padding-top:22vh;align-items:center;text-align:center}
+  .logomoment h2{font-size:clamp(30px,5.4vw,76px);font-weight:600;letter-spacing:-.04em;line-height:1}
+  .logomoment p{margin-top:20px;color:var(--mut);max-width:38ch;font-size:clamp(15px,1.8vw,19px);line-height:1.6}
+  .secthead{margin-bottom:46px}.secthead h3{font-size:clamp(26px,3.6vw,46px);font-weight:600;letter-spacing:-.035em;line-height:1.05;max-width:22ch}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .card{padding:28px 24px 32px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.012));border:1px solid var(--line);backdrop-filter:blur(14px);transition:border-color .4s,transform .4s}
+  .card:hover{border-color:rgba(91,91,214,.6);transform:translateY(-5px)}
+  .card .num{font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--indigo)}.card h4{margin-top:14px;font-size:19px;font-weight:600;letter-spacing:-.02em}.card p{margin-top:10px;font-size:13.5px;line-height:1.55;color:var(--mut)}
+  .scrollcue{position:fixed;bottom:clamp(22px,4vw,54px);left:50%;transform:translateX(-50%);z-index:5;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#9b9bab;opacity:.8}
+  .corner{position:fixed;bottom:clamp(22px,4vw,54px);right:clamp(22px,4vw,54px);z-index:5;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#bdbdc9}
+  @media(max-width:760px){.tabs{display:none}.grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas><div class="vig"></div>
+  <nav>
+    <div class="wm">autom<span class="x">ai</span>tions</div>
+    <div class="tabs"><a href="index.html">home</a><a href="systems.html" class="on">systems</a><a href="process.html">process</a><a href="work.html">work</a><a href="about.html">about</a><a href="contact.html">contact</a></div>
+  </nav>
+  <main>
+    <section><span class="k reveal">002 — systems</span><h1 class="reveal">One field. Many <span class="x">formations</span>.</h1><p class="sub reveal">Scroll — and the same particles reassemble: scattered work, into your mark, into a running pipeline. That's what we do to your operations.</p><div class="scrollcue">scroll</div></section>
+    <section class="logomoment"><span class="k reveal">the shape of it</span><h2 class="reveal">Chaos, made <span class="x">one</span>.</h2><p class="reveal">Thousands of moving parts, pulled into a single system you finally own.</p></section>
+    <section>
+      <div class="secthead reveal"><span class="k">what we build</span><h3>Four systems, taken off your plate for good.</h3></div>
+      <div class="grid">
+        <div class="card reveal"><div class="num">01</div><h4>Always-on intake</h4><p>Leads, DMs and forms answered in seconds, qualified, logged and routed. 3am or peak hour, same response.</p></div>
+        <div class="card reveal"><div class="num">02</div><h4>Follow-up engine</h4><p>Quotes chased, reviews requested, no-shows rebooked, dormant clients re-woken. Revenue recovered.</p></div>
+        <div class="card reveal"><div class="num">03</div><h4>Back-office on rails</h4><p>Invoices reconciled, reports built, data moved between tools that don't talk. The admin, gone.</p></div>
+        <div class="card reveal"><div class="num">04</div><h4>The morning brief</h4><p>One clear read daily: what moved, what's stuck, what needs you. The operation, before coffee.</p></div>
+      </div>
+    </section>
+    <section style="align-items:center;text-align:center;min-height:108vh;justify-content:flex-start;padding-top:16vh">
+      <h2 class="reveal" style="font-size:clamp(32px,6vw,86px);font-weight:600;letter-spacing:-.045em;line-height:1;max-width:15ch">It converges to one thing: <span class="x">handled</span>.</h2>
+      <p class="reveal" style="margin-top:22px;color:var(--mut);max-width:40ch;line-height:1.6">Start with the highest-leverage system. Stack the rest as you grow.</p>
+      <a href="contact.html" class="reveal" style="margin-top:34px;display:inline-block;padding:15px 28px;border-radius:100px;background:var(--indigo);color:#fff;font-weight:600">Get your automation map →</a>
+    </section>
+  </main>
+  <div class="corner">002 — systems · particle morph</div>
+
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('scene'),antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+    const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1400);camera.position.set(0,0,98);
+    const INDIGO=new THREE.Color(0x5B5BD6),SOFT=new THREE.Color(0x8C8CF0);
+    const COUNT=8000;const seeds=new Float32Array(COUNT),sizes=new Float32Array(COUNT),bright=new Float32Array(COUNT);
+    for(let i=0;i<COUNT;i++){seeds[i]=Math.random();sizes[i]=0.5+Math.random()*Math.random()*3.2;bright[i]=0.3+Math.pow(Math.random(),2.2)*1.5;}
+    const T_NEBULA=new Float32Array(COUNT*3),T_LOGO=new Float32Array(COUNT*3),T_PIPE=new Float32Array(COUNT*3),T_CONV=new Float32Array(COUNT*3);
+    for(let i=0;i<COUNT;i++){
+      const a=Math.random()*Math.PI*2,r=Math.pow(Math.random(),1.8)*72,z=(Math.random()*2-1)*220;
+      T_NEBULA[i*3]=Math.cos(a)*r+Math.sin(z*0.012)*24;T_NEBULA[i*3+1]=Math.sin(a)*r*0.46+Math.cos(z*0.009)*10;T_NEBULA[i*3+2]=z;
+      const cu=Math.random()*2-1,cth=Math.random()*Math.PI*2,cr=Math.pow(Math.random(),0.6)*13;
+      T_CONV[i*3]=Math.sqrt(1-cu*cu)*Math.cos(cth)*cr;T_CONV[i*3+1]=Math.sqrt(1-cu*cu)*Math.sin(cth)*cr-2;T_CONV[i*3+2]=cu*cr;
+    }
+    const NODES=[-48,-16,16,48];
+    for(let i=0;i<COUNT;i++){if(i%5<3){const n=NODES[i%4],g=()=>(Math.random()+Math.random()+Math.random()-1.5)*9;T_PIPE[i*3]=n+g();T_PIPE[i*3+1]=g()*0.8;T_PIPE[i*3+2]=g()*0.8;}else{const x=-60+Math.random()*120;T_PIPE[i*3]=x;T_PIPE[i*3+1]=Math.sin(x*0.12)*4+(Math.random()-0.5)*3;T_PIPE[i*3+2]=(Math.random()-0.5)*3;}}
+    T_LOGO.set(T_NEBULA);
+    const GLYPH=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2048 2048' width='2048' height='2048'><g transform='translate(85.868,1807.360) scale(1.557066,-1.557066)'><path d='M428 -20C583 -20 691 42 752 157H761V0H1089V759C1089 999 870 1132 592 1132C312 1132 136 1001 92 810L408 769C427 839 492 884 589 884C684 884 741 840 741 763V759C741 690 665 676 476 660C250 641 60 558 60 310C60 89 213 -20 428 -20ZM534 211C450 211 390 251 390 326C390 400 448 444 551 459C616 469 704 484 744 505V398C744 288 651 211 534 211Z' fill='%23fff'/></g></svg>`;
+    const img=new Image();img.onload=()=>{const S=300,cv=document.createElement('canvas');cv.width=S;cv.height=S;const ctx=cv.getContext('2d');ctx.drawImage(img,0,0,S,S);const d=ctx.getImageData(0,0,S,S).data,pts=[];for(let y=0;y<S;y+=2)for(let x=0;x<S;x+=2)if(d[(y*S+x)*4+3]>120)pts.push([x,y]);for(let k=pts.length-1;k>0;k--){const j=(Math.random()*(k+1))|0;[pts[k],pts[j]]=[pts[j],pts[k]];}const fit=innerWidth<760?46:78,oy=-fit*0.14;for(let i=0;i<COUNT;i++){const p=pts[i%pts.length];T_LOGO[i*3]=(p[0]/S-0.5)*fit+(Math.random()-0.5)*0.6;T_LOGO[i*3+1]=-(p[1]/S-0.5)*fit+oy+(Math.random()-0.5)*0.6;T_LOGO[i*3+2]=(Math.random()-0.5)*6;}};img.src='data:image/svg+xml;utf8,'+GLYPH;
+    const STAGES=[T_NEBULA,T_LOGO,T_PIPE,T_CONV];
+    const ANCHORS=[['section:nth-child(1)',0],['.logomoment',1],['.grid',2],['main > section:last-child',3]];
+    let ANCH=[];function measure(){const mx=document.documentElement.scrollHeight-innerHeight;const sc=(window.__lenis&&window.__lenis.scroll)||0;ANCH=ANCHORS.map(([s,m])=>{const el=document.querySelector(s);if(!el)return null;const r=el.getBoundingClientRect();return{f:mx>0?(r.top+sc+r.height/2-innerHeight/2)/mx:0,m};}).filter(Boolean).sort((a,b)=>a.f-b.f);}
+    function morph(s){if(!ANCH.length)return 0;if(s<=ANCH[0].f)return ANCH[0].m;for(let i=0;i<ANCH.length-1;i++){const a=ANCH[i],b=ANCH[i+1];if(s<=b.f){const f=(s-a.f)/Math.max(b.f-a.f,1e-4);return a.m+(b.m-a.m)*(f*f*(3-2*f));}}return ANCH[ANCH.length-1].m;}
+    const geo=new THREE.BufferGeometry();const pos=new Float32Array(COUNT*3);pos.set(T_NEBULA);
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('aSeed',new THREE.BufferAttribute(seeds,1));geo.setAttribute('aSize',new THREE.BufferAttribute(sizes,1));geo.setAttribute('aBright',new THREE.BufferAttribute(bright,1));
+    const posAttr=geo.attributes.position;
+    const uniforms={uTime:{value:0},uPixel:{value:Math.min(devicePixelRatio,2)},uIndigo:{value:INDIGO},uSoft:{value:SOFT},uGlow:{value:0}};
+    const mat=new THREE.ShaderMaterial({uniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+      vertexShader:`attribute float aSeed;attribute float aSize;attribute float aBright;uniform float uTime;uniform float uPixel;varying float vB;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);float dist=-mv.z;float tw=0.65+0.35*sin(uTime*1.8+aSeed*30.0);vB=aBright*tw;float size=aSize*(330.0/dist)*uPixel;gl_PointSize=clamp(size,0.0,60.0);gl_Position=projectionMatrix*mv;}`,
+      fragmentShader:`precision highp float;uniform vec3 uIndigo;uniform vec3 uSoft;uniform float uGlow;varying float vB;void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;float soft=pow(smoothstep(0.5,0.0,d),2.0);vec3 col=mix(uIndigo,mix(uSoft,vec3(1.0),0.5),clamp(vB-0.6,0.0,1.0));gl_FragColor=vec4(col*vB*(1.0+uGlow),soft*0.92);}`});
+    scene.add(new THREE.Points(geo,mat));
+    const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),1.15,0.85,0.0);composer.addPass(bloom);
+    const lenis=new Lenis({lerp:0.085,smoothWheel:true});window.__lenis=lenis;let scrollP=0,rawVel=0;
+    lenis.on('scroll',e=>{const mx=document.documentElement.scrollHeight-innerHeight;scrollP=mx>0?e.scroll/mx:0;rawVel=e.velocity||0;});
+    function rl(t){lenis.raf(t);requestAnimationFrame(rl);}requestAnimationFrame(rl);
+    let tpx=0,tpy=0,px=0,py=0;addEventListener('pointermove',e=>{tpx=e.clientX/innerWidth-0.5;tpy=e.clientY/innerHeight-0.5;});
+    const clock=new THREE.Clock();let vS=0,curM=0;
+    function animate(){const dt=Math.min(clock.getDelta(),0.05);uniforms.uTime.value+=dt;vS+=(Math.min(Math.abs(rawVel)*0.05,2.0)-vS)*0.06;const tgt=morph(scrollP);curM+=(tgt-curM)*0.08;
+      const s=Math.min(Math.floor(curM),STAGES.length-2),f=curM-s,e=f*f*(3-2*f);const A=STAGES[s],B=STAGES[s+1],turb=Math.sin(Math.PI*f),tb=turb*7.0,t=uniforms.uTime.value,sw=turb>0.02;
+      for(let i=0;i<COUNT;i++){const ix=i*3,iy=ix+1,iz=ix+2;let x=A[ix]+(B[ix]-A[ix])*e,y=A[iy]+(B[iy]-A[iy])*e,z=A[iz]+(B[iz]-A[iz])*e;if(sw){const sd=seeds[i]*30.0;x+=Math.sin(t*0.9+sd)*tb*0.5;y+=Math.cos(t*0.8+sd*1.1)*tb*0.5;z+=Math.sin(t*0.7+sd*0.9)*tb;}pos[ix]=x;pos[iy]=y;pos[iz]=z;}
+      posAttr.needsUpdate=true;uniforms.uGlow.value=Math.max(0,(curM-2.5))*0.4+vS*0.15;
+      px+=(tpx-px)*0.05;py+=(tpy-py)*0.05;camera.position.x+=(px*16-camera.position.x)*0.05;camera.position.y+=(-py*10-camera.position.y)*0.05;const cz=98-Math.min(curM,1)*8;camera.position.z+=(cz-camera.position.z)*0.05;camera.lookAt(0,0,0);
+      bloom.strength=1.05+vS*0.25+uniforms.uGlow.value*0.8;composer.render();requestAnimationFrame(animate);}
+    animate();
+    addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloom.setSize(innerWidth,innerHeight);uniforms.uPixel.value=Math.min(devicePixelRatio,2);measure();});
+    const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in');}),{threshold:0.16});document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',ev=>{const t=document.querySelector(a.getAttribute('href'));if(t){ev.preventDefault();lenis.scrollTo(t);}}));
+    addEventListener('load',measure);measure();setTimeout(measure,1300);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);
+  </script>
+</body>
+</html>
