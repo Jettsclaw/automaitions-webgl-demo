@@ -143,11 +143,12 @@
         uniforms.uTime.value+=clock.getDelta();
         vS+=(vel-vS)*0.08;uniforms.uVel.value=vS;
         // seek toward scroll target — frame scrub (not cross-fade): one video, currentTime driven by scroll
-        if(vid.duration){const d=targetTime-vid.currentTime;if(Math.abs(d)>0.001){vid.currentTime+=d*0.25;tex.needsUpdate=true;}}
+        if(vid.duration){const d=targetTime-vid.currentTime;if(Math.abs(d)>0.001){vid.currentTime+=d*0.25;}}
+        if(vid.readyState>=2)tex.needsUpdate=true;   // always upload latest decoded frame (fixes black-on-load)
         render();requestAnimationFrame(loop);
       }
-      // kick a first decode so the texture isn't black before first scroll
-      vid.addEventListener('loadeddata',()=>{vid.currentTime=0.01;},{once:true});
+      // prime a decoded frame so the texture isn't black before first scroll (paused video won't paint on some browsers)
+      vid.addEventListener('loadeddata',()=>{vid.play().then(()=>{vid.pause();vid.currentTime=0.04;}).catch(()=>{vid.currentTime=0.04;});},{once:true});
       loop();
     }
     addEventListener('resize',size);
