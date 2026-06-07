@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Lock Down Your Passwords with Ironclad Security</title>
+<link href="https://db.onlinewebfonts.com/c/04e6981992c0e2e7642af2074ebe3901?family=Helvetica+Now+Display+Bold" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root{
+    --font-heading:'Helvetica Now Display Bold',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --color-text:#192837;
+    --color-accent:#7342E2;
+    --color-login-bg:#F2F2EE;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:0;font-family:var(--font-body);color:var(--color-text);min-height:100dvh;overflow-x:hidden}
+  /* background video */
+  #bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover}
+  /* inline icons */
+  .hi{color:#192837;display:inline;vertical-align:middle;position:relative;top:-2px;margin:0 4px;width:24px;height:24px}
+  .hi.fp{margin:0;margin-left:6px}
+  /* navbar */
+  .wrap{max-width:1280px;margin:0 auto}
+  nav{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:16px 20px}
+  .navc{display:none;gap:32px;align-items:center}
+  .navc a{font-size:.875rem;font-weight:500;color:var(--color-text);text-decoration:none;transition:opacity .2s}
+  .navc a:hover{opacity:.7}
+  .navr{display:none;gap:12px;align-items:center}
+  .pill{border:none;border-radius:9999px;font-size:.875rem;font-weight:600;padding:10px 20px;cursor:pointer;transition:box-shadow .2s,transform .1s;font-family:var(--font-body)}
+  .pill:active{transform:scale(.95)}
+  .pill.acc{background:var(--color-accent);color:#fff}.pill.acc:hover{box-shadow:0 6px 22px rgba(115,66,226,.35)}
+  .pill.lt{background:var(--color-login-bg);color:var(--color-text)}.pill.lt:hover{box-shadow:0 6px 22px rgba(25,40,55,.16)}
+  .burger{display:flex;background:none;border:none;cursor:pointer;color:var(--color-text);padding:4px}
+  @media(min-width:768px){.navc{display:flex}.navr{display:flex}.burger{display:none}nav{padding:20px 32px}}
+  /* mobile sheet */
+  .backdrop{position:fixed;inset:0;z-index:40;background:rgba(25,40,55,.35);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s}
+  .backdrop.open{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;top:0;right:0;z-index:50;width:min(88vw,360px);height:100dvh;background:#CFC8C5;box-shadow:-12px 0 48px rgba(25,40,55,.18);transform:translateX(110%);transition:transform .35s cubic-bezier(.55,0,1,.45);display:flex;flex-direction:column;padding:0}
+  .sheet.open{transform:translateX(0);transition:transform .45s cubic-bezier(.22,1,.36,1)}
+  .shead{display:flex;justify-content:space-between;align-items:center;padding:20px 24px}
+  .sclose{width:40px;height:40px;border-radius:50%;background:rgba(25,40,55,.1);border:none;display:grid;place-items:center;cursor:pointer;transition:transform .1s}.sclose:active{transform:scale(.9)}
+  .sdiv{height:1px;background:rgba(25,40,55,.12);margin:0 24px}
+  .slinks{display:flex;flex-direction:column;padding:18px 16px;gap:2px;flex:1}
+  .slinks a{font-size:1.1rem;font-weight:500;color:var(--color-text);text-decoration:none;padding:12px 14px;border-radius:12px;transition:background .2s,transform .4s cubic-bezier(.22,1,.36,1),opacity .4s;opacity:0;transform:translateX(24px)}
+  .sheet.open .slinks a{opacity:1;transform:none}
+  .slinks a:hover{background:rgba(0,0,0,.1)}
+  .scta{display:flex;flex-direction:column;gap:12px;padding:16px 24px 32px}
+  .scta .pill{width:100%;padding:14px;font-size:.95rem}
+  /* hero */
+  main{position:relative;z-index:10;max-width:1280px;margin:0 auto;padding:clamp(40px,8vw,72px) 20px 48px;text-align:center}
+  .inner{max-width:660px;margin:0 auto}
+  h1{font-family:var(--font-heading);font-size:clamp(1.65rem,5vw,3rem);line-height:1.05;letter-spacing:-.01em;color:var(--color-text);text-align:center;margin:0;font-weight:400}
+  h1 .ln{display:block}.h1nw{white-space:nowrap}
+  p.sub{font-family:var(--font-body);font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--color-text);opacity:.8;max-width:560px;line-height:1.65;text-align:center;margin:22px auto 0}
+  .cta{margin:30px auto 0;display:inline-flex;align-items:center;justify-content:space-between;gap:32px;min-width:210px;border:none;border-radius:50px;background:var(--color-accent);color:#fff;font-family:var(--font-body);font-size:clamp(.9rem,2vw,1rem);font-weight:600;padding:17px 24px;cursor:pointer;box-shadow:0 4px 24px rgba(115,66,226,.28);transition:transform .15s,filter .15s}
+  .cta:hover{transform:scale(1.04);filter:brightness(1.1)}.cta:active{transform:scale(.96)}
+  .cta .ai{width:20px;height:20px;color:#fff}
+  /* fade-up */
+  .fu{opacity:0;transform:translateY(28px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+  .fu.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+  <video id="bg" autoplay muted loop playsinline src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260606_131516_eca35265-ea66-4fbd-8d52-22aae6e1a503.mp4"></video>
+
+  <div class="wrap">
+    <nav>
+      <svg width="32" height="32" viewBox="0 0 256 256" fill="#192837" aria-label="Logo"><path d="M 64 128 L 64.5 128 L 32 95 L 0 64 L 0 0 L 64 0 L 128 64 L 128 64.5 L 161 32 L 192 0 L 256 0 L 256 64 L 192 128 L 128 128 L 128 192 L 96 223 L 63.5 256 L 0 256 L 0 192 Z M 256 192 L 224 223 L 191.5 256 L 128 256 L 128 192 L 192 128 L 256 128 Z"/></svg>
+      <div class="navc"><a href="#">Vault</a><a href="#">Plans</a><a href="#">Install</a><a href="#">News</a><a href="#">Help</a></div>
+      <div class="navr"><button class="pill acc">Start For Free</button><button class="pill lt">Sign In</button></div>
+      <button class="burger" id="burger" aria-label="Menu"><i data-lucide="menu" style="width:24px;height:24px"></i></button>
+    </nav>
+  </div>
+
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="sheet" id="sheet" aria-hidden="true">
+    <div class="shead">
+      <svg width="32" height="32" viewBox="0 0 256 256" fill="#192837"><path d="M 64 128 L 64.5 128 L 32 95 L 0 64 L 0 0 L 64 0 L 128 64 L 128 64.5 L 161 32 L 192 0 L 256 0 L 256 64 L 192 128 L 128 128 L 128 192 L 96 223 L 63.5 256 L 0 256 L 0 192 Z M 256 192 L 224 223 L 191.5 256 L 128 256 L 128 192 L 192 128 L 256 128 Z"/></svg>
+      <button class="sclose" id="sclose" aria-label="Close"><i data-lucide="x" style="width:20px;height:20px"></i></button>
+    </div>
+    <div class="sdiv"></div>
+    <div class="slinks"><a href="#">Vault</a><a href="#">Plans</a><a href="#">Install</a><a href="#">News</a><a href="#">Help</a></div>
+    <div class="scta"><button class="pill acc">Start For Free</button><button class="pill lt">Sign In</button></div>
+  </aside>
+
+  <main>
+    <div class="inner">
+      <h1 class="fu" style="transition-delay:0s">
+        <span class="ln h1nw">Lock <i data-lucide="zap" class="hi"></i> Down Your <i data-lucide="lock-keyhole" class="hi"></i> Passwords</span>
+        <span class="ln">with Ironclad Security <i data-lucide="fingerprint" class="hi fp"></i></span>
+      </h1>
+      <p class="sub fu" style="transition-delay:.15s">Zero stress, total control. Unbreakable storage, one-tap access, and pro-grade tools for your non-stop world.</p>
+      <button class="cta fu" style="transition-delay:.3s">Get It Free <i data-lucide="arrow-right-circle" class="ai"></i></button>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    lucide.createIcons();
+    // fade-up on load
+    addEventListener('load',()=>requestAnimationFrame(()=>document.querySelectorAll('.fu').forEach(el=>el.classList.add('in'))));
+    setTimeout(()=>document.querySelectorAll('.fu').forEach(el=>el.classList.add('in')),200);
+    // mobile menu
+    const sheet=document.getElementById('sheet'),bd=document.getElementById('backdrop');
+    const open=()=>{sheet.classList.add('open');bd.classList.add('open');};
+    const close=()=>{sheet.classList.remove('open');bd.classList.remove('open');};
+    document.getElementById('burger').onclick=open;
+    document.getElementById('sclose').onclick=close;bd.onclick=close;
+  </script>
+</body>
+</html>
