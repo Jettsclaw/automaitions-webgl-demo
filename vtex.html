@@ -2,126 +2,155 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>automaitions — scroll-triggered video texture (proof)</title>
+<title>automaitions — scroll-scrubbed video hero</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{--indigo:#5B5BD6;--soft:#8C8CF0;--paper:#FAFAFA}
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
-  #scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block}
-  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-  .vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(125% 95% at 50% 42%,transparent 48%,rgba(4,4,6,.92) 100%)}
-  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(20px,4vw,54px);mix-blend-mode:difference}
-  .wm{font-weight:600;font-size:19px;letter-spacing:-.02em}.wm .x{color:var(--indigo)}
-  main{position:relative;z-index:2}
-  section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(22px,7vw,150px)}
-  .k{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);font-weight:600;margin-bottom:22px}
-  h1{font-size:clamp(48px,10vw,160px);line-height:.9;font-weight:700;letter-spacing:-.05em;text-shadow:0 4px 60px rgba(4,4,6,.7)}
-  h2{font-size:clamp(34px,6vw,92px);line-height:.98;font-weight:600;letter-spacing:-.045em;max-width:16ch;text-shadow:0 3px 50px rgba(4,4,6,.7)}
-  .x{color:var(--indigo)}
-  p.sub{margin-top:28px;max-width:42ch;font-size:clamp(16px,2vw,21px);line-height:1.55;color:#d4d4de;text-shadow:0 2px 30px rgba(4,4,6,.8)}
-  .reveal{opacity:0;transform:translateY(36px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}.reveal.in{opacity:1;transform:none}
-  .scrollcue{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:5;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#9b9bab}
-  .pct{position:fixed;bottom:30px;right:clamp(20px,4vw,54px);z-index:5;font-size:12px;font-variant-numeric:tabular-nums;color:var(--soft);font-weight:600;letter-spacing:.05em}
-  .big{font-size:clamp(60px,16vw,260px);font-weight:800;letter-spacing:-.06em;line-height:.85}
+  /* fixed full-screen stage holds the canvas; a tall track below generates the scroll */
+  #stage{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;overflow:hidden}
+  #scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+  .track{height:340vh}
+  .grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(130% 100% at 30% 50%,transparent 40%,rgba(4,4,6,.85) 100%)}
+  /* overlay chrome — fixed, sits above the stage */
+  .overlay{position:fixed;inset:0;z-index:3;pointer-events:none;padding:clamp(22px,4vw,54px);display:flex;flex-direction:column;justify-content:space-between}
+  .wm{font-weight:600;font-size:18px;letter-spacing:-.02em}.wm .x{color:var(--soft)}
+  .mid{max-width:18ch}
+  h1{font-size:clamp(44px,8vw,128px);line-height:.92;font-weight:700;letter-spacing:-.05em;text-shadow:0 4px 60px rgba(4,4,6,.7)}
+  h1 .x{color:var(--soft)}
+  .bot{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+  .cta{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:100px;background:var(--paper);color:#0a0a0a;font-weight:600;font-size:15px;transition:transform .25s,box-shadow .3s;box-shadow:0 12px 40px -10px rgba(0,0,0,.6)}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 18px 50px -10px rgba(140,140,240,.7)}
+  .cta .arr{transition:transform .25s}.cta:hover .arr{transform:translateX(4px)}
+  .meta{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#bdbdc9;text-align:right}
+  .meta .pct{display:block;font-size:22px;font-weight:700;color:var(--soft);font-variant-numeric:tabular-nums;letter-spacing:0;margin-top:4px}
+  .scrollcue{position:fixed;bottom:clamp(22px,4vw,54px);left:50%;transform:translateX(-50%);z-index:3;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#9b9bab;opacity:.8}
+  @media(max-width:640px){h1{font-size:clamp(40px,12vw,68px)}.meta{display:none}}
 </style>
 </head>
 <body>
-  <canvas id="scene"></canvas>
-  <!-- the generated MP4 — drives the WebGL texture. crossorigin so it can be sampled. -->
-  <video id="vid" playsinline muted loop crossorigin="anonymous" style="display:none"></video>
+  <div id="stage">
+    <canvas id="scene"></canvas>
+    <img id="poster" alt=""/>
+  </div>
+  <!-- real video element, scrubbed by scroll. NOT autoplay. attached MP4 lives in /scenes. -->
+  <video id="vid" playsinline muted preload="auto" crossorigin="anonymous" style="display:none"></video>
   <div class="grain"></div><div class="vig"></div>
-  <nav><div class="wm">autom<span class="x">ai</span>tions</div><div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#9b9bab">scroll-video texture · proof</div></nav>
-  <div class="scrollcue">scroll</div>
-  <div class="pct" id="pct">00</div>
 
-  <main>
-    <section><div class="k reveal">higgsfield does the art · claude does the code</div><h1 class="reveal">liquid<br><span class="x">intelligence</span>.</h1><p class="sub reveal">The video behind this text is a live WebGL texture — scroll scrubs the footage, warps it, and grades it in real time. Not a background video. A shader.</p></section>
-    <section><h2 class="reveal">Scroll drives the <span class="x">footage</span> — frame by frame.</h2><p class="sub reveal">25%, 50%, 75% — each beat pushes the loop forward and bends the image through a displacement shader. The exact web.love.ed mechanic, rebuilt.</p></section>
-    <section style="align-items:flex-end;text-align:right"><h2 class="reveal" style="margin-left:auto">It just <span class="x">runs</span>.</h2><p class="sub reveal" style="margin-left:auto">One technique, infinite scenes. Swap the MP4, keep the engine.</p></section>
-    <section style="align-items:center;text-align:center"><div class="big reveal">automaitions</div></section>
-  </main>
+  <div class="overlay">
+    <div class="wm">autom<span class="x">ai</span>tions</div>
+    <div class="mid"><h1>liquid<br><span class="x">intelligence</span></h1></div>
+    <div class="bot">
+      <a class="cta" href="#">Get your automation map <span class="arr">→</span></a>
+      <div class="meta">scroll-scrubbed video<span class="pct" id="pct">000</span></div>
+    </div>
+  </div>
+  <div class="scrollcue" id="cue">scroll to scrub</div>
+
+  <div class="track"></div>
 
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script type="module">
     import * as THREE from 'three';
-    // VIDEO_URL is injected after generation; falls back gracefully if missing.
     const VIDEO_URL = window.__VIDEO_URL || "scenes/liquid-intelligence.mp4";
-    const vid=document.getElementById('vid');
-    vid.src=VIDEO_URL; vid.play().catch(()=>{});
+    const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const canvas=document.getElementById('scene');
+    const vid=document.getElementById('vid');
+    vid.src=VIDEO_URL;
+    const canvas=document.getElementById('scene'), posterEl=document.getElementById('poster');
+
     const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-    renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    function size(){renderer.setSize(stage.clientWidth,stage.clientHeight);uniforms.uRes.value.set(stage.clientWidth,stage.clientHeight);}
+    const stage=document.getElementById('stage');
     const scene=new THREE.Scene();const camera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
     const tex=new THREE.VideoTexture(vid);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;
+    // we drive texture uploads ourselves (frame-accurate) — not auto every render
+    tex.generateMipmaps=false;
 
     const uniforms={
       uTex:{value:tex},uTime:{value:0},uScroll:{value:0},uVel:{value:0},
-      uRes:{value:new THREE.Vector2(innerWidth,innerHeight)},
-      uVidRes:{value:new THREE.Vector2(16,9)},
+      uRes:{value:new THREE.Vector2(innerWidth,innerHeight)},uVidRes:{value:new THREE.Vector2(16,9)},
       uIndigo:{value:new THREE.Color(0x5B5BD6)}
     };
     const mat=new THREE.ShaderMaterial({uniforms,
       vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,1.0);}`,
-      fragmentShader:`
-        precision highp float;
-        uniform sampler2D uTex;uniform float uTime;uniform float uScroll;uniform float uVel;
-        uniform vec2 uRes;uniform vec2 uVidRes;uniform vec3 uIndigo;varying vec2 vUv;
-        // cover-fit the video into the viewport
-        vec2 coverUv(vec2 uv){
-          float sa=uRes.x/uRes.y, va=uVidRes.x/uVidRes.y; vec2 s=vec2(1.0);
-          if(sa>va){s.y=va/sa;} else {s.x=sa/va;}
-          return (uv-0.5)*s+0.5;
-        }
+      fragmentShader:`precision highp float;uniform sampler2D uTex;uniform float uTime;uniform float uScroll;uniform float uVel;uniform vec2 uRes;uniform vec2 uVidRes;uniform vec3 uIndigo;varying vec2 vUv;
+        vec2 coverUv(vec2 uv){float sa=uRes.x/uRes.y,va=uVidRes.x/uVidRes.y;vec2 s=vec2(1.0);if(sa>va){s.y=va/sa;}else{s.x=sa/va;}return (uv-0.5)*s+0.5;}
         float hash(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453);}
-        void main(){
-          vec2 uv=coverUv(vUv);
-          // scroll-driven barrel/wave displacement — bends the footage as you scroll
-          float amt=0.02+uVel*0.06;
-          float w=sin(uv.y*9.0+uTime*0.6+uScroll*6.28)*amt;
-          uv.x+=w*(0.4+uScroll*0.8);
-          uv.y+=cos(uv.x*7.0+uTime*0.5)*amt*0.4;
-          // RGB split scaling with scroll velocity
-          float sp=0.004+uVel*0.02;
-          float r=texture2D(uTex,uv+vec2(sp,0.0)).r;
-          float g=texture2D(uTex,uv).g;
-          float b=texture2D(uTex,uv-vec2(sp,0.0)).b;
-          vec3 col=vec3(r,g,b);
-          // indigo grade — push the brand colour into mids/shadows
+        void main(){vec2 uv=coverUv(vUv);
+          float amt=0.012+uVel*0.05;
+          uv.x+=sin(uv.y*8.0+uTime*0.5+uScroll*6.28)*amt*(0.5+uScroll*0.7);
+          uv.y+=cos(uv.x*6.0+uTime*0.4)*amt*0.4;
+          float sp=0.003+uVel*0.018;
+          vec3 col=vec3(texture2D(uTex,uv+vec2(sp,0.0)).r,texture2D(uTex,uv).g,texture2D(uTex,uv-vec2(sp,0.0)).b);
           float lum=dot(col,vec3(0.299,0.587,0.114));
-          col=mix(col, col*uIndigo*1.8, 0.35);
-          col+=uIndigo*pow(lum,2.0)*0.25;
-          // scanline shimmer + grain
-          col*=0.92+0.08*sin(vUv.y*uRes.y*1.2);
-          col+=(hash(vUv*uRes+uTime)-0.5)*0.05;
-          // darken edges into the page
-          float d=distance(vUv,vec2(0.5));col*=smoothstep(0.95,0.35,d)*0.6+0.4;
-          gl_FragColor=vec4(col,1.0);
-        }`});
+          col=mix(col,col*uIndigo*1.7,0.3)+uIndigo*pow(lum,2.0)*0.22;
+          col*=0.93+0.07*sin(vUv.y*uRes.y*1.1);
+          col+=(hash(vUv*uRes+uTime)-0.5)*0.045;
+          float d=distance(vUv,vec2(0.5));col*=smoothstep(0.98,0.4,d)*0.55+0.45;
+          gl_FragColor=vec4(col,1.0);}`});
     scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),mat));
-    vid.addEventListener('loadedmetadata',()=>{uniforms.uVidRes.value.set(vid.videoWidth||16,vid.videoHeight||9);});
+    const render=()=>renderer.render(scene,camera);
 
-    const lenis=new Lenis({lerp:0.08,smoothWheel:true});window.__lenis=lenis;
-    let sp=0,vel=0;
-    lenis.on('scroll',e=>{const mx=document.documentElement.scrollHeight-innerHeight;sp=mx>0?e.scroll/mx:0;vel=e.velocity||0;document.getElementById('pct').textContent=String(Math.round(sp*100)).padStart(2,'0');});
-    function rl(t){lenis.raf(t);requestAnimationFrame(rl);}requestAnimationFrame(rl);
+    // frame-accurate texture upload via requestVideoFrameCallback (rAF fallback)
+    let frameDirty=true;
+    if('requestVideoFrameCallback' in HTMLVideoElement.prototype){
+      const onFrame=()=>{tex.needsUpdate=true;frameDirty=true;vid.requestVideoFrameCallback(onFrame);};
+      vid.requestVideoFrameCallback(onFrame);
+    } else { setInterval(()=>{tex.needsUpdate=true;frameDirty=true;},1000/30); }
 
-    const clock=new THREE.Clock();let vS=0;
-    function loop(){
-      uniforms.uTime.value+=clock.getDelta();
-      vS+=(Math.min(Math.abs(vel)*0.05,2.0)-vS)*0.08;uniforms.uVel.value=vS;
-      uniforms.uScroll.value+=(sp-uniforms.uScroll.value)*0.08;
-      // scroll-scrub the footage: map scroll → video time (web.love.ed mechanic), with gentle autoplay drift
-      if(vid.duration){const target=sp*vid.duration; vid.currentTime+=(target-vid.currentTime)*0.1;}
-      renderer.render(scene,camera);requestAnimationFrame(loop);
+    vid.addEventListener('loadedmetadata',()=>{uniforms.uVidRes.value.set(vid.videoWidth||16,vid.videoHeight||9);size();});
+
+    // ---- REDUCED MOTION: serve final frame as a static poster, no scrubbing ----
+    if(REDUCED){
+      document.getElementById('cue').style.display='none';
+      canvas.style.display='none';
+      vid.addEventListener('loadeddata',()=>{
+        vid.currentTime=vid.duration||0; // hold last frame
+        const c=document.createElement('canvas');c.width=vid.videoWidth;c.height=vid.videoHeight;
+        vid.addEventListener('seeked',()=>{c.getContext('2d').drawImage(vid,0,0);posterEl.src=c.toDataURL('image/jpeg',0.9);posterEl.style.display='block';},{once:true});
+      },{once:true});
+    } else {
+      // ---- SCROLL-SCRUB: GSAP ScrollTrigger maps scroll progress 0→1 to video.currentTime 0→duration ----
+      gsap.registerPlugin(ScrollTrigger);
+      const lenis=new Lenis({lerp:0.09,smoothWheel:true});window.__lenis=lenis;
+      lenis.on('scroll',ScrollTrigger.update);
+      gsap.ticker.add((t)=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
+      let targetTime=0,vel=0;
+      vid.pause();
+      vid.addEventListener('loadedmetadata',()=>{
+        ScrollTrigger.create({
+          trigger:'.track',start:'top top',end:'bottom bottom',scrub:true,
+          onUpdate:(self)=>{
+            targetTime=self.progress*(vid.duration||0);
+            vel=Math.min(Math.abs(self.getVelocity())/3000,2.0);
+            uniforms.uScroll.value=self.progress;
+            document.getElementById('pct').textContent=String(Math.round(self.progress*100)).padStart(3,'0');
+            document.getElementById('cue').style.opacity=self.progress>0.02?0:0.8;
+          }
+        });
+      });
+      const clock=new THREE.Clock();let vS=0;
+      function loop(){
+        uniforms.uTime.value+=clock.getDelta();
+        vS+=(vel-vS)*0.08;uniforms.uVel.value=vS;
+        // seek toward scroll target — frame scrub (not cross-fade): one video, currentTime driven by scroll
+        if(vid.duration){const d=targetTime-vid.currentTime;if(Math.abs(d)>0.001){vid.currentTime+=d*0.25;tex.needsUpdate=true;}}
+        render();requestAnimationFrame(loop);
+      }
+      // kick a first decode so the texture isn't black before first scroll
+      vid.addEventListener('loadeddata',()=>{vid.currentTime=0.01;},{once:true});
+      loop();
     }
-    loop();
-    addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);uniforms.uRes.value.set(innerWidth,innerHeight);});
-    const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in');}),{threshold:0.2});
-    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    addEventListener('resize',size);
   </script>
 </body>
 </html>
