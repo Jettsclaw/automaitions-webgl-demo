@@ -3,55 +3,189 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>automaitions — the foundation layer of AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="description" content="We build and run the systems underneath your business — so one person owns the whole loop, not 25 tools owning fragments. First system live in 30 days, or you don't pay."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root{--indigo:#5B5BD6;--soft:#8C8CF0;--paper:#FAFAFA}
+  :root{--indigo:#5B5BD6;--soft:#8C8CF0;--ink:#0A0A0A;--paper:#FAFAFA;--mut:#a6a6b4;--line:rgba(255,255,255,.1)}
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  a{color:inherit;text-decoration:none}
-  /* fixed full-screen stage holds the canvas; a tall track below generates the scroll */
-  #stage{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;overflow:hidden}
+  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}::selection{background:rgba(91,91,214,.45)}
+  /* pinned cinematic video-texture background (scrubbed by scroll) */
+  #stage{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;overflow:hidden;background:#040406}
   #scene{position:absolute;inset:0;width:100%;height:100%;display:block}
   #poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
-  .track{height:340vh}
-  .grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-  .vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(130% 100% at 30% 50%,transparent 40%,rgba(4,4,6,.85) 100%)}
-  /* overlay chrome — fixed, sits above the stage */
-  .overlay{position:fixed;inset:0;z-index:3;pointer-events:none;padding:clamp(22px,4vw,54px);display:flex;flex-direction:column;justify-content:space-between}
-  .wm{font-weight:600;font-size:18px;letter-spacing:-.02em}.wm .x{color:var(--soft)}
-  .mid{max-width:18ch}
-  h1{font-size:clamp(44px,8vw,128px);line-height:.92;font-weight:700;letter-spacing:-.05em;text-shadow:0 4px 60px rgba(4,4,6,.7)}
-  h1 .x{color:var(--soft)}
-  .bot{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
-  .cta{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:100px;background:var(--paper);color:#0a0a0a;font-weight:600;font-size:15px;transition:transform .25s,box-shadow .3s;box-shadow:0 12px 40px -10px rgba(0,0,0,.6)}
-  .cta:hover{transform:translateY(-2px);box-shadow:0 18px 50px -10px rgba(140,140,240,.7)}
-  .cta .arr{transition:transform .25s}.cta:hover .arr{transform:translateX(4px)}
-  .meta{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#bdbdc9;text-align:right}
-  .meta .pct{display:block;font-size:22px;font-weight:700;color:var(--soft);font-variant-numeric:tabular-nums;letter-spacing:0;margin-top:4px}
-  .scrollcue{position:fixed;bottom:clamp(22px,4vw,54px);left:50%;transform:translateX(-50%);z-index:3;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#9b9bab;opacity:.8}
-  @media(max-width:640px){h1{font-size:clamp(40px,12vw,68px)}.meta{display:none}}
+  .scrim{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(4,4,6,.82) 0%,rgba(4,4,6,.5) 42%,rgba(4,4,6,.2) 100%)}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:16px clamp(20px,4vw,54px);transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
+  nav.solid{background:rgba(6,6,10,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;font-size:19px;letter-spacing:-.02em}.brand .x{color:var(--soft)}
+  .brand .gl{width:26px;height:26px;border-radius:7px;background:var(--indigo);display:grid;place-items:center;box-shadow:0 6px 20px -6px rgba(91,91,214,.9)}.brand .gl svg{width:15px;height:15px;display:block}
+  .tabs{display:flex;gap:3px;align-items:center}
+  .tab{padding:8px 13px;font-size:13.5px;font-weight:500;color:#c7c7d2;border-radius:9px;transition:.25s}.tab:hover{color:#fff;background:rgba(255,255,255,.06)}.tab.on{color:#fff}
+  .navcta{margin-left:8px;padding:9px 17px;border-radius:100px;background:var(--indigo);color:#fff;font-size:13.5px;font-weight:600;box-shadow:0 8px 28px -8px rgba(91,91,214,.8);transition:transform .25s}.navcta:hover{transform:translateY(-2px)}
+  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer}.burger span{width:22px;height:2px;background:#fff;border-radius:2px;transition:.3s}
+  .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}.burger.open span:nth-child(2){opacity:0}.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .mm{display:none}
+
+  main{position:relative;z-index:3}
+  section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(22px,7vw,150px)}
+  .reveal{opacity:0;transform:translateY(32px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}.reveal.in{opacity:1;transform:none}
+  .x{color:var(--soft)}.dim{color:#7a7a88}
+  h1,h2,h3,.sub,p,.k{text-shadow:0 2px 40px rgba(4,4,6,.85)}
+  .k{font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:20px;display:inline-flex;align-items:center;gap:10px}
+  .k::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--indigo);box-shadow:0 0 12px 1px var(--indigo)}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:15px 28px;border-radius:100px;font-weight:600;font-size:15px;cursor:pointer;transition:transform .25s,box-shadow .35s,border-color .3s}
+  .btn.solid{background:var(--indigo);color:#fff;box-shadow:0 10px 40px -8px rgba(91,91,214,.7)}.btn.solid:hover{transform:translateY(-2px);box-shadow:0 16px 52px -6px rgba(91,91,214,.95)}
+  .btn.ghost{border:1px solid rgba(250,250,250,.25)}.btn.ghost:hover{border-color:rgba(250,250,250,.6)}
+  .btn .arr{transition:transform .25s}.btn:hover .arr{transform:translateX(4px)}
+  .ctarow{margin-top:36px;display:flex;gap:15px;flex-wrap:wrap;align-items:center}
+  .guar{margin-top:22px;font-size:13.5px;color:var(--soft);font-weight:600;display:inline-flex;align-items:center;gap:9px}
+  .guar::before{content:"";width:18px;height:18px;border-radius:5px;background:rgba(91,91,214,.22);border:1px solid var(--indigo);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238C8CF0' stroke-width='3'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");background-size:13px;background-repeat:no-repeat;background-position:center}
+
+  .hero{min-height:104vh}
+  .hero h1{font-size:clamp(42px,7.6vw,118px);line-height:.92;font-weight:700;letter-spacing:-.05em;max-width:15ch}
+  .hero h1 .x{color:var(--soft)}
+  .sub{margin-top:30px;font-size:clamp(16px,1.9vw,22px);line-height:1.5;max-width:44ch;color:#dcdce4}
+  .scrollcue{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:5;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#9b9bab;opacity:.8}
+  .pct{position:fixed;bottom:30px;right:clamp(20px,4vw,54px);z-index:5;font-size:12px;font-variant-numeric:tabular-nums;color:var(--soft);font-weight:700}
+
+  h2{font-size:clamp(32px,5.4vw,82px);font-weight:700;letter-spacing:-.045em;line-height:1;max-width:18ch}
+  h2 b{font-weight:700}
+  .lead{margin-top:24px;font-size:clamp(15px,1.8vw,20px);line-height:1.55;max-width:46ch;color:var(--mut)}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;max-width:1150px}
+  .card{padding:26px 22px 30px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.015));border:1px solid var(--line);backdrop-filter:blur(14px);transition:border-color .4s,transform .4s}
+  .card:hover{border-color:rgba(91,91,214,.6);transform:translateY(-5px)}
+  .card .num{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--soft)}.card h4{margin-top:14px;font-size:18px;font-weight:600;letter-spacing:-.02em}.card p{margin-top:9px;font-size:13.5px;line-height:1.5;color:var(--mut)}
+  .plan{display:flex;gap:14px;flex-wrap:wrap;margin-top:40px}
+  .plan .s{flex:1 1 180px;padding:22px 20px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+  .plan .s .n{font-size:12px;font-weight:700;color:var(--soft);letter-spacing:.08em}.plan .s h4{margin-top:9px;font-size:17px;font-weight:600}.plan .s p{margin-top:7px;font-size:13.5px;color:var(--mut);line-height:1.5}
+  .metrics{display:flex;gap:48px;flex-wrap:wrap;margin-top:30px}
+  .metric .v{font-size:clamp(40px,5vw,66px);font-weight:700;letter-spacing:-.04em;background:linear-gradient(180deg,#fff,#8C8CF0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .metric .l{margin-top:6px;font-size:13.5px;color:var(--mut);max-width:22ch;line-height:1.45}
+  .offerbox{max-width:600px;margin-top:10px;padding:32px 30px;border-radius:22px;background:linear-gradient(180deg,rgba(91,91,214,.16),rgba(255,255,255,.02));border:1px solid rgba(91,91,214,.4);backdrop-filter:blur(16px)}
+  .offerbox ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin:16px 0 20px}
+  .offerbox li{position:relative;padding-left:30px;font-size:15.5px;line-height:1.4;color:#e2e2ea}
+  .offerbox li::before{content:"";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:5px;background:rgba(91,91,214,.3);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b9b9ff' stroke-width='3'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center}
+  .offerbox .stamp{font-size:13px;color:var(--soft);font-weight:700;border-top:1px solid rgba(91,91,214,.3);padding-top:15px}
+  .end{align-items:center;text-align:center;min-height:108vh;justify-content:center}
+  .end h2{max-width:16ch}
+
+  footer{position:relative;z-index:3;padding:54px clamp(22px,7vw,150px) 46px;border-top:1px solid var(--line);background:rgba(4,4,6,.7);backdrop-filter:blur(10px)}
+  .fgrid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:flex-start}
+  .fnav{display:flex;gap:20px;flex-wrap:wrap;font-size:14px;color:var(--mut)}.fnav a:hover{color:#fff}
+  .fbot{margin-top:32px;font-size:12.5px;color:#6b6b78;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  @media(max-width:920px){
+    .tabs,.navcta{display:none}.burger{display:flex}
+    .mm{display:flex;position:fixed;inset:0;z-index:25;background:rgba(6,6,10,.97);backdrop-filter:blur(20px);flex-direction:column;justify-content:center;gap:6px;padding:0 30px;opacity:0;pointer-events:none;transition:opacity .35s}
+    .mm.open{opacity:1;pointer-events:auto}.mm a{font-size:26px;font-weight:600;padding:12px 0}.mm a.on{color:var(--soft)}
+    .grid{grid-template-columns:1fr 1fr}.scrim{background:linear-gradient(180deg,rgba(4,4,6,.55),rgba(4,4,6,.85))}
+  }
+  @media(max-width:540px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-  <div id="stage">
-    <canvas id="scene"></canvas>
-    <img id="poster" alt=""/>
-  </div>
-  <!-- real video element, scrubbed by scroll. NOT autoplay. attached MP4 lives in /scenes. -->
+  <div id="stage"><canvas id="scene"></canvas><img id="poster" alt=""/></div>
   <video id="vid" playsinline muted preload="auto" crossorigin="anonymous" style="display:none"></video>
-  <div class="grain"></div><div class="vig"></div>
+  <div class="scrim"></div><div class="grain"></div>
 
-  <div class="overlay">
-    <div style="display:flex;justify-content:space-between;align-items:center;width:100%"><div class="wm">autom<span class="x">ai</span>tions</div><div style="display:flex;gap:20px;font-size:13px;font-weight:500;pointer-events:auto"><a href="index.html" style="color:#8C8CF0">home</a><a href="systems.html">systems</a><a href="process.html">process</a><a href="work.html">work</a><a href="about.html">about</a><a href="contact.html">contact</a></div></div>
-    <div class="mid"><h1>liquid<br><span class="x">intelligence</span></h1></div>
-    <div class="bot">
-      <a class="cta" href="#">Get your automation map <span class="arr">→</span></a>
-      <div class="meta">the foundation layer of AI<span class="pct" id="pct">000</span></div>
+  <nav id="nav">
+    <a class="brand" href="index.html"><span class="gl"><svg viewBox="0 0 2048 2048"><g transform="translate(85.868,1807.36) scale(1.557066,-1.557066)"><path d="M428 -20C583 -20 691 42 752 157H761V0H1089V759C1089 999 870 1132 592 1132C312 1132 136 1001 92 810L408 769C427 839 492 884 589 884C684 884 741 840 741 763V759C741 690 665 676 476 660C250 641 60 558 60 310C60 89 213 -20 428 -20ZM534 211C450 211 390 251 390 326C390 400 448 444 551 459C616 469 704 484 744 505V398C744 288 651 211 534 211Z" fill="#fff"/></g></svg></span><span>autom<span class="x">ai</span>tions</span></a>
+    <div class="tabs">
+      <a class="tab on" href="index.html">home</a>
+      <a class="tab" href="systems.html">systems</a>
+      <a class="tab" href="process.html">process</a>
+      <a class="tab" href="work.html">work</a>
+      <a class="tab" href="about.html">about</a>
+      <a class="navcta" href="#start">Get your automation map</a>
     </div>
+    <div class="burger" id="burger"><span></span><span></span><span></span></div>
+  </nav>
+  <div class="mm" id="mm">
+    <a href="index.html" class="on">home</a><a href="systems.html">systems</a><a href="process.html">process</a><a href="work.html">work</a><a href="about.html">about</a><a href="#start">contact</a>
   </div>
-  <div class="scrollcue" id="cue">scroll</div>
 
-  <div class="track"></div>
+  <main>
+    <section class="hero">
+      <span class="k reveal">the foundation layer of AI</span>
+      <h1 class="reveal">The work that runs your business — <span class="x">handled</span>, before you ask.</h1>
+      <p class="sub reveal">We build and run the systems underneath your business — intake, follow-up, back-office, the daily brief — wired into the tools you already use. One person owns the whole loop, not 25 tools owning fragments.</p>
+      <div class="ctarow reveal"><a class="btn solid" href="#start">Get your automation map <span class="arr">→</span></a><a class="btn ghost" href="#mech">See how it works</a></div>
+      <span class="guar reveal">First system live in 30 days — or you don't pay.</span>
+    </section>
+
+    <section>
+      <h2 class="reveal">You've tried the agency. You've tried hiring. <span class="dim">The work still runs you.</span></h2>
+      <p class="lead reveal">Agencies are too slow. In-house is too expensive. Your tools don't talk to each other. The lead waits till morning, the quote never gets chased, the report gets built by hand — again. There's a third way, and it isn't another tool to log into.</p>
+    </section>
+
+    <section id="mech">
+      <span class="k reveal">the mechanism</span>
+      <h2 class="reveal">The Foundation Layer.</h2>
+      <p class="lead reveal">Not a tool. Not a chatbot. The operational layer underneath the AI and apps you already run — set up, integrated and maintained — so your whole stack behaves like one engine you finally own. That's why it sticks when point tools and DIY automations didn't.</p>
+    </section>
+
+    <section>
+      <span class="k reveal">what we build</span>
+      <h2 class="reveal">Four systems, taken off your plate for good.</h2>
+      <div class="grid">
+        <div class="card reveal"><div class="num">01</div><h4>Always-on intake</h4><p>Leads, DMs and forms answered in seconds, qualified, logged and routed. 3am or peak hour, same response.</p></div>
+        <div class="card reveal"><div class="num">02</div><h4>Follow-up engine</h4><p>Quotes chased, reviews requested, no-shows rebooked, dormant clients re-woken. Revenue recovered.</p></div>
+        <div class="card reveal"><div class="num">03</div><h4>Back-office on rails</h4><p>Invoices reconciled, reports built, data moved between tools that don't talk. The admin, gone.</p></div>
+        <div class="card reveal"><div class="num">04</div><h4>The morning brief</h4><p>One clear read daily: what moved, what's stuck, what needs you. The operation, before coffee.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <span class="k reveal">why it matters</span>
+      <h2 class="reveal">The hours you get back compound.</h2>
+      <div class="metrics">
+        <div class="metric reveal"><div class="v">24/7</div><div class="l">Your systems never clock off, never call in sick, never drop a lead.</div></div>
+        <div class="metric reveal"><div class="v">~20h</div><div class="l">Of repetitive admin handed back to a typical team, every week.</div></div>
+        <div class="metric reveal"><div class="v">&lt;30d</div><div class="l">From first call to a system running live in your business.</div></div>
+      </div>
+    </section>
+
+    <section>
+      <span class="k reveal">the offer</span>
+      <h2 class="reveal">First system live in 30 days — or you <span class="x">don't pay</span>.</h2>
+      <div class="offerbox reveal">
+        <ul>
+          <li>A mapped automation plan from one call — yours to keep, even if we never work together</li>
+          <li>Your single highest-leverage system, built into the tools you already use</li>
+          <li>Live and monitored — we watch it and fix issues fast</li>
+          <li>You approve it once. Then it just runs.</li>
+        </ul>
+        <div class="stamp">⎯ If it's not live and running in 30 days, you pay nothing. The risk is ours.</div>
+      </div>
+      <div class="plan reveal">
+        <div class="s"><div class="n">01 · FREE</div><h4>Automation map</h4><p>Two lines about your week. We send back the one system worth building first.</p></div>
+        <div class="s"><div class="n">02 · CALL</div><h4>Scope &amp; price</h4><p>30 minutes. We agree the build — no deck, no pressure.</p></div>
+        <div class="s"><div class="n">03 · LIVE</div><h4>It runs</h4><p>Built into your stack, monitored, and stacked with the next system.</p></div>
+      </div>
+    </section>
+
+    <section class="end" id="start">
+      <span class="k reveal">start here</span>
+      <h2 class="reveal">Tell us what runs your day.<br>We'll make it run <span class="x">itself</span>.</h2>
+      <p class="lead reveal" style="text-align:center">One call. We map the repetitive work, find the highest-leverage system, and build it. You approve it once — then it just runs.</p>
+      <div class="ctarow reveal" style="justify-content:center"><a class="btn solid" href="mailto:hello@automaitions.com?subject=Automation%20map%20request">Get your automation map <span class="arr">→</span></a><a class="btn ghost" href="systems.html">See it move</a></div>
+      <span class="guar reveal">First system live in 30 days — or you don't pay.</span>
+    </section>
+  </main>
+
+  <footer>
+    <div class="fgrid">
+      <div>
+        <div class="brand"><span class="gl"><svg viewBox="0 0 2048 2048"><g transform="translate(85.868,1807.36) scale(1.557066,-1.557066)"><path d="M428 -20C583 -20 691 42 752 157H761V0H1089V759C1089 999 870 1132 592 1132C312 1132 136 1001 92 810L408 769C427 839 492 884 589 884C684 884 741 840 741 763V759C741 690 665 676 476 660C250 641 60 558 60 310C60 89 213 -20 428 -20ZM534 211C450 211 390 251 390 326C390 400 448 444 551 459C616 469 704 484 744 505V398C744 288 651 211 534 211Z" fill="#fff"/></g></svg></span><span>autom<span class="x">ai</span>tions</span></div>
+        <p style="margin-top:13px;color:var(--mut);font-size:14px;max-width:34ch;line-height:1.5">The Foundation Layer of AI. Time is the only currency. Spend it wisely.</p>
+      </div>
+      <div class="fnav"><a href="systems.html">systems</a><a href="process.html">process</a><a href="work.html">work</a><a href="about.html">about</a><a href="mailto:hello@automaitions.com">hello@automaitions.com</a></div>
+    </div>
+    <div class="fbot"><span>© 2026 automaitions</span><span>Built on the Gold Coast, Australia</span></div>
+  </footer>
 
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -59,99 +193,72 @@
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script type="module">
     import * as THREE from 'three';
-    const VIDEO_URL = window.__VIDEO_URL || "scenes/liquid-intelligence.mp4";
-    const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const vid=document.getElementById('vid');
-    vid.src=VIDEO_URL;
-    const canvas=document.getElementById('scene'), posterEl=document.getElementById('poster');
-
-    const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-    function size(){renderer.setSize(stage.clientWidth,stage.clientHeight);uniforms.uRes.value.set(stage.clientWidth,stage.clientHeight);}
-    const stage=document.getElementById('stage');
+    const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const vid=document.getElementById('vid');vid.src="scenes/liquid-intelligence.mp4";
+    const canvas=document.getElementById('scene'),posterEl=document.getElementById('poster'),stage=document.getElementById('stage');
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     const scene=new THREE.Scene();const camera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-    const tex=new THREE.VideoTexture(vid);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;
-    // we drive texture uploads ourselves (frame-accurate) — not auto every render
-    tex.generateMipmaps=false;
-
-    const uniforms={
-      uTex:{value:tex},uTime:{value:0},uScroll:{value:0},uVel:{value:0},
-      uRes:{value:new THREE.Vector2(innerWidth,innerHeight)},uVidRes:{value:new THREE.Vector2(16,9)},
-      uIndigo:{value:new THREE.Color(0x5B5BD6)}
-    };
+    const tex=new THREE.VideoTexture(vid);tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;
+    const uniforms={uTex:{value:tex},uTime:{value:0},uScroll:{value:0},uVel:{value:0},uRes:{value:new THREE.Vector2(1,1)},uVidRes:{value:new THREE.Vector2(16,9)},uIndigo:{value:new THREE.Color(0x5B5BD6)}};
+    function size(){renderer.setSize(stage.clientWidth,stage.clientHeight);uniforms.uRes.value.set(stage.clientWidth,stage.clientHeight);}
     const mat=new THREE.ShaderMaterial({uniforms,
       vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,1.0);}`,
       fragmentShader:`precision highp float;uniform sampler2D uTex;uniform float uTime;uniform float uScroll;uniform float uVel;uniform vec2 uRes;uniform vec2 uVidRes;uniform vec3 uIndigo;varying vec2 vUv;
         vec2 coverUv(vec2 uv){float sa=uRes.x/uRes.y,va=uVidRes.x/uVidRes.y;vec2 s=vec2(1.0);if(sa>va){s.y=va/sa;}else{s.x=sa/va;}return (uv-0.5)*s+0.5;}
         float hash(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5453);}
         void main(){vec2 uv=coverUv(vUv);
-          float amt=0.012+uVel*0.05;
-          uv.x+=sin(uv.y*8.0+uTime*0.5+uScroll*6.28)*amt*(0.5+uScroll*0.7);
-          uv.y+=cos(uv.x*6.0+uTime*0.4)*amt*0.4;
-          float sp=0.003+uVel*0.018;
+          float amt=0.01+uVel*0.04;
+          uv.x+=sin(uv.y*8.0+uTime*0.4+uScroll*6.28)*amt*(0.5+uScroll*0.6);
+          uv.y+=cos(uv.x*6.0+uTime*0.35)*amt*0.4;
+          float sp=0.0025+uVel*0.015;
           vec3 col=vec3(texture2D(uTex,uv+vec2(sp,0.0)).r,texture2D(uTex,uv).g,texture2D(uTex,uv-vec2(sp,0.0)).b);
           float lum=dot(col,vec3(0.299,0.587,0.114));
-          col=mix(col,col*uIndigo*1.7,0.3)+uIndigo*pow(lum,2.0)*0.22;
-          col*=0.93+0.07*sin(vUv.y*uRes.y*1.1);
-          col+=(hash(vUv*uRes+uTime)-0.5)*0.045;
-          float d=distance(vUv,vec2(0.5));col*=smoothstep(0.98,0.4,d)*0.55+0.45;
+          col=mix(col,col*uIndigo*1.7,0.32)+uIndigo*pow(lum,2.0)*0.2;
+          col*=0.94+0.06*sin(vUv.y*uRes.y*1.1);col+=(hash(vUv*uRes+uTime)-0.5)*0.04;
+          float d=distance(vUv,vec2(0.5));col*=smoothstep(1.0,0.45,d)*0.5+0.5;
           gl_FragColor=vec4(col,1.0);}`});
     scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),mat));
     const render=()=>renderer.render(scene,camera);
-
-    // frame-accurate texture upload via requestVideoFrameCallback (rAF fallback)
-    let frameDirty=true;
-    if('requestVideoFrameCallback' in HTMLVideoElement.prototype){
-      const onFrame=()=>{tex.needsUpdate=true;frameDirty=true;vid.requestVideoFrameCallback(onFrame);};
-      vid.requestVideoFrameCallback(onFrame);
-    } else { setInterval(()=>{tex.needsUpdate=true;frameDirty=true;},1000/30); }
-
+    size();addEventListener('resize',size);
     vid.addEventListener('loadedmetadata',()=>{uniforms.uVidRes.value.set(vid.videoWidth||16,vid.videoHeight||9);size();});
 
-    // ---- REDUCED MOTION: serve final frame as a static poster, no scrubbing ----
     if(REDUCED){
-      document.getElementById('cue').style.display='none';
       canvas.style.display='none';
-      vid.addEventListener('loadeddata',()=>{
-        vid.currentTime=vid.duration||0; // hold last frame
+      vid.addEventListener('loadeddata',()=>{vid.play().then(()=>{vid.pause();vid.currentTime=vid.duration*0.5;}).catch(()=>{});
         const c=document.createElement('canvas');c.width=vid.videoWidth;c.height=vid.videoHeight;
-        vid.addEventListener('seeked',()=>{c.getContext('2d').drawImage(vid,0,0);posterEl.src=c.toDataURL('image/jpeg',0.9);posterEl.style.display='block';},{once:true});
-      },{once:true});
+        vid.addEventListener('seeked',()=>{try{c.getContext('2d').drawImage(vid,0,0);posterEl.src=c.toDataURL('image/jpeg',0.85);posterEl.style.display='block';}catch(e){}},{once:true});},{once:true});
     } else {
-      // ---- SCROLL-SCRUB: GSAP ScrollTrigger maps scroll progress 0→1 to video.currentTime 0→duration ----
       gsap.registerPlugin(ScrollTrigger);
       const lenis=new Lenis({lerp:0.09,smoothWheel:true});window.__lenis=lenis;
-      lenis.on('scroll',ScrollTrigger.update);
-      gsap.ticker.add((t)=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
-      let targetTime=0,vel=0;
-      vid.pause();
+      lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add((t)=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
+      lenis.on('scroll',e=>{document.getElementById('nav').classList.toggle('solid',(e.scroll||0)>40);});
+      let targetTime=0,vel=0;vid.pause();
       vid.addEventListener('loadedmetadata',()=>{
-        ScrollTrigger.create({
-          trigger:'.track',start:'top top',end:'bottom bottom',scrub:true,
-          onUpdate:(self)=>{
-            targetTime=self.progress*(vid.duration||0);
-            vel=Math.min(Math.abs(self.getVelocity())/3000,2.0);
-            uniforms.uScroll.value=self.progress;
+        ScrollTrigger.create({trigger:'main',start:'top top',end:'bottom bottom',scrub:true,
+          onUpdate:(self)=>{targetTime=self.progress*(vid.duration||0);vel=Math.min(Math.abs(self.getVelocity())/3000,2.0);uniforms.uScroll.value=self.progress;
             document.getElementById('pct').textContent=String(Math.round(self.progress*100)).padStart(3,'0');
-            document.getElementById('cue').style.opacity=self.progress>0.02?0:0.8;
-          }
-        });
+            document.getElementById('cue').style.opacity=self.progress>0.02?0:0.8;}});
       });
       const clock=new THREE.Clock();let vS=0;
-      function loop(){
-        uniforms.uTime.value+=clock.getDelta();
-        vS+=(vel-vS)*0.08;uniforms.uVel.value=vS;
-        // seek toward scroll target — frame scrub (not cross-fade): one video, currentTime driven by scroll
-        if(vid.duration){const d=targetTime-vid.currentTime;if(Math.abs(d)>0.001){vid.currentTime+=d*0.25;}}
-        if(vid.readyState>=2)tex.needsUpdate=true;   // always upload latest decoded frame (fixes black-on-load)
-        render();requestAnimationFrame(loop);
-      }
-      // prime a decoded frame so the texture isn't black before first scroll (paused video won't paint on some browsers)
+      function loop(){uniforms.uTime.value+=clock.getDelta();vS+=(vel-vS)*0.08;uniforms.uVel.value=vS;
+        if(vid.duration){const d=targetTime-vid.currentTime;if(Math.abs(d)>0.001)vid.currentTime+=d*0.25;}
+        if(vid.readyState>=2)tex.needsUpdate=true;
+        render();requestAnimationFrame(loop);}
       vid.addEventListener('loadeddata',()=>{vid.play().then(()=>{vid.pause();vid.currentTime=0.04;}).catch(()=>{vid.currentTime=0.04;});},{once:true});
       loop();
     }
-    addEventListener('resize',size);
+    // reveals
+    const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting)en.target.classList.add('in');}),{threshold:0.18});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    // smooth anchor scroll
+    addEventListener('load',()=>{document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',ev=>{const t=document.querySelector(a.getAttribute('href'));if(t){ev.preventDefault();(window.__lenis?window.__lenis.scrollTo(t):t.scrollIntoView({behavior:'smooth'}));closeMM();}}));});
+    // mobile menu
+    const burger=document.getElementById('burger'),mm=document.getElementById('mm');
+    function closeMM(){burger.classList.remove('open');mm.classList.remove('open');}
+    burger.addEventListener('click',()=>{burger.classList.toggle('open');mm.classList.toggle('open');});
+    mm.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{if(a.getAttribute('href').startsWith('#'))closeMM();}));
   </script>
+  <div class="scrollcue" id="cue">scroll</div>
+  <div class="pct" id="pct">000</div>
 </body>
 </html>
