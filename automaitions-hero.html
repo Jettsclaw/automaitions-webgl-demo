@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>automaitions — the work that runs your business, handled before you ask</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root{
+    --font-heading:'Inter',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --color-text:#FAFAFA;
+    --color-accent:#5B5BD6;
+    --color-accent-l:#8C8CF0;
+    --color-login-bg:rgba(255,255,255,.08);
+    --bg:#06060a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:0;font-family:var(--font-body);color:var(--color-text);min-height:100dvh;overflow-x:hidden;background:var(--bg)}
+  #bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover}
+  /* dark scrim so light text reads over the footage */
+  .scrim{position:absolute;inset:0;z-index:1;background:radial-gradient(120% 90% at 50% 30%,rgba(6,6,10,.55),rgba(6,6,10,.85))}
+  .hi{color:var(--color-accent-l);display:inline;vertical-align:middle;position:relative;top:-2px;margin:0 4px;width:24px;height:24px}
+  .hi.last{margin:0;margin-left:6px}
+  .wrap{max-width:1280px;margin:0 auto}
+  nav{position:relative;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:16px 20px}
+  .wm{font-weight:600;font-size:19px;letter-spacing:-.02em}.wm .x{color:var(--color-accent-l)}
+  .navc{display:none;gap:30px;align-items:center}
+  .navc a{font-size:.875rem;font-weight:500;color:#d4d4de;text-decoration:none;transition:color .2s}.navc a:hover{color:var(--color-accent-l)}
+  .navr{display:none;gap:12px;align-items:center}
+  .pill{border:none;border-radius:9999px;font-size:.875rem;font-weight:600;padding:10px 20px;cursor:pointer;transition:transform .1s,box-shadow .25s,background .25s;font-family:var(--font-body)}
+  .pill:active{transform:scale(.95)}
+  .pill.acc{background:var(--color-accent);color:#fff;box-shadow:0 8px 28px -8px rgba(91,91,214,.7)}.pill.acc:hover{background:#6d6de0;transform:translateY(-1px)}
+  .pill.lt{background:var(--color-login-bg);color:var(--color-text);border:1px solid rgba(255,255,255,.14)}.pill.lt:hover{border-color:rgba(255,255,255,.4)}
+  .burger{display:flex;background:none;border:none;cursor:pointer;color:var(--color-text);padding:4px}
+  @media(min-width:768px){.navc{display:flex}.navr{display:flex}.burger{display:none}nav{padding:20px 32px}}
+  .backdrop{position:fixed;inset:0;z-index:40;background:rgba(6,6,10,.5);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s}
+  .backdrop.open{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;top:0;right:0;z-index:50;width:min(88vw,360px);height:100dvh;background:#101018;box-shadow:-12px 0 48px rgba(0,0,0,.5);transform:translateX(110%);transition:transform .35s cubic-bezier(.55,0,1,.45);display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,.08)}
+  .sheet.open{transform:translateX(0);transition:transform .45s cubic-bezier(.22,1,.36,1)}
+  .shead{display:flex;justify-content:space-between;align-items:center;padding:20px 24px}
+  .sclose{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:none;display:grid;place-items:center;cursor:pointer;color:var(--color-text);transition:transform .1s}.sclose:active{transform:scale(.9)}
+  .sdiv{height:1px;background:rgba(255,255,255,.1);margin:0 24px}
+  .slinks{display:flex;flex-direction:column;padding:18px 16px;gap:2px;flex:1}
+  .slinks a{font-size:1.1rem;font-weight:500;color:var(--color-text);text-decoration:none;padding:12px 14px;border-radius:12px;transition:background .2s,transform .4s cubic-bezier(.22,1,.36,1),opacity .4s;opacity:0;transform:translateX(24px)}
+  .sheet.open .slinks a{opacity:1;transform:none}.slinks a:hover{background:rgba(255,255,255,.06)}
+  .scta{display:flex;flex-direction:column;gap:12px;padding:16px 24px 32px}.scta .pill{width:100%;padding:14px;font-size:.95rem}
+  main{position:relative;z-index:10;max-width:1280px;margin:0 auto;padding:clamp(44px,9vw,90px) 20px 48px;text-align:center}
+  .inner{max-width:680px;margin:0 auto}
+  .eye{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--color-accent-l);font-weight:600;margin-bottom:20px;display:inline-block}
+  h1{font-family:var(--font-heading);font-weight:800;font-size:clamp(1.8rem,5.4vw,3.3rem);line-height:1.04;letter-spacing:-.03em;color:var(--color-text);margin:0}
+  h1 .ln{display:block}.h1nw{white-space:nowrap}
+  p.sub{font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--color-text);opacity:.8;max-width:560px;line-height:1.65;margin:24px auto 0}
+  .cta{margin:34px auto 0;display:inline-flex;align-items:center;justify-content:space-between;gap:28px;min-width:230px;border:none;border-radius:50px;background:var(--color-accent);color:#fff;font-family:var(--font-body);font-size:clamp(.9rem,2vw,1rem);font-weight:600;padding:17px 26px;cursor:pointer;box-shadow:0 10px 34px rgba(91,91,214,.45);transition:transform .15s,filter .15s}
+  .cta:hover{transform:scale(1.04);filter:brightness(1.1)}.cta:active{transform:scale(.96)}.cta .ai{width:20px;height:20px;color:#fff}
+  .guar{margin-top:20px;font-size:12.5px;letter-spacing:.04em;color:#a6a6b4}
+  .fu{opacity:0;transform:translateY(28px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}.fu.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+  <video id="bg" autoplay muted loop playsinline src="scenes/liquid-intelligence.mp4"></video>
+  <div class="scrim"></div>
+
+  <div class="wrap">
+    <nav>
+      <div class="wm">autom<span class="x">ai</span>tions</div>
+      <div class="navc"><a href="#">systems</a><a href="#">process</a><a href="#">work</a><a href="#">about</a><a href="#">contact</a></div>
+      <div class="navr"><button class="pill acc">Start a build</button><button class="pill lt">Book a call</button></div>
+      <button class="burger" id="burger" aria-label="Menu"><i data-lucide="menu" style="width:24px;height:24px"></i></button>
+    </nav>
+  </div>
+
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="sheet" id="sheet" aria-hidden="true">
+    <div class="shead"><div class="wm" style="font-size:17px">autom<span class="x">ai</span>tions</div><button class="sclose" id="sclose" aria-label="Close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="sdiv"></div>
+    <div class="slinks"><a href="#">systems</a><a href="#">process</a><a href="#">work</a><a href="#">about</a><a href="#">contact</a></div>
+    <div class="scta"><button class="pill acc">Start a build</button><button class="pill lt">Book a call</button></div>
+  </aside>
+
+  <main>
+    <div class="inner">
+      <div class="eye fu" style="transition-delay:0s">the foundation layer of AI</div>
+      <h1 class="fu" style="transition-delay:.1s">
+        <span class="ln h1nw">The work that runs <i data-lucide="workflow" class="hi"></i> your business</span>
+        <span class="ln">— <i data-lucide="zap" class="hi"></i> handled, before you ask <i data-lucide="check-circle" class="hi last"></i></span>
+      </h1>
+      <p class="sub fu" style="transition-delay:.25s">Always-on intake, follow-up, back-office and your morning brief — wired into the tools you already use, running while you sleep. No dashboards to babysit.</p>
+      <button class="cta fu" style="transition-delay:.4s">Get your automation map <i data-lucide="arrow-right-circle" class="ai"></i></button>
+      <div class="guar fu" style="transition-delay:.5s">First system live in 30 days — or you don't pay.</div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    lucide.createIcons();
+    addEventListener('load',()=>requestAnimationFrame(()=>document.querySelectorAll('.fu').forEach(el=>el.classList.add('in'))));
+    setTimeout(()=>document.querySelectorAll('.fu').forEach(el=>el.classList.add('in')),200);
+    const sheet=document.getElementById('sheet'),bd=document.getElementById('backdrop');
+    const open=()=>{sheet.classList.add('open');bd.classList.add('open');},close=()=>{sheet.classList.remove('open');bd.classList.remove('open');};
+    document.getElementById('burger').onclick=open;document.getElementById('sclose').onclick=close;bd.onclick=close;
+  </script>
+</body>
+</html>
