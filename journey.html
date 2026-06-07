@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>automaitions — the foundation layer of AI</title>
+<meta name="description" content="The work that runs your business — handled, before you ask. An immersive look at the foundation layer of AI."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--indigo:#5B5BD6;--soft:#8C8CF0;--cyan:#7fe9ff;--paper:#FAFAFA;--mut:#9aa0bf;--line:rgba(255,255,255,.1)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#05060e;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}::selection{background:rgba(91,91,214,.4)}
+  #scene{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;display:block}
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:18px clamp(20px,4vw,56px);mix-blend-mode:difference}
+  .wm{font-weight:600;font-size:19px;letter-spacing:-.02em}.wm .x{color:var(--soft)}
+  nav .cta{padding:9px 17px;border:1px solid rgba(250,250,250,.4);border-radius:100px;font-size:13px;font-weight:600;mix-blend-mode:difference}
+  /* pinned chapters */
+  .chap{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(22px,7vw,150px);opacity:0;pointer-events:none;transition:opacity .6s ease}
+  .chap.on{opacity:1;pointer-events:auto}
+  .chap::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(5,6,14,.78) 0%,rgba(5,6,14,.42) 38%,transparent 70%)}
+  .chap.center{align-items:center;text-align:center}.chap.center::before{background:radial-gradient(62% 56% at 50% 47%,rgba(5,6,14,.9),rgba(5,6,14,.6) 52%,transparent 84%)}
+  .chap .inner{max-width:64ch;transform:translateY(24px);transition:transform 1s cubic-bezier(.16,1,.3,1)}.chap.on .inner{transform:none}
+  .k{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--soft);font-weight:600;margin-bottom:20px;display:inline-flex;align-items:center;gap:10px}
+  .k::before{content:"";width:24px;height:1px;background:var(--indigo)}
+  h1,h2{text-shadow:0 4px 50px rgba(5,6,14,.95)}.sub,p{text-shadow:0 2px 30px rgba(5,6,14,.95)}
+  .x{color:var(--soft)}.dim{color:#5a6088}
+  h1{font-size:clamp(36px,5.3vw,82px);line-height:.98;font-weight:700;letter-spacing:-.04em;max-width:17ch}
+  h2{font-size:clamp(32px,5.4vw,80px);line-height:.98;font-weight:700;letter-spacing:-.035em;max-width:18ch}
+  .sub{margin-top:26px;font-size:clamp(16px,1.9vw,21px);line-height:1.55;max-width:44ch;color:#cdd2ea;font-weight:300}
+  .lead{margin-top:22px;font-size:clamp(15px,1.7vw,20px);line-height:1.6;max-width:46ch;color:var(--mut);font-weight:300}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:15px 28px;border-radius:100px;font-weight:600;font-size:15px;cursor:pointer;transition:transform .25s,box-shadow .35s}
+  .btn.solid{background:var(--indigo);color:#fff;box-shadow:0 10px 40px -8px rgba(91,91,214,.7)}.btn.solid:hover{transform:translateY(-2px)}
+  .btn.ghost{border:1px solid rgba(250,250,250,.25)}.btn.ghost:hover{border-color:#fff}
+  .ctarow{margin-top:34px;display:flex;gap:15px;flex-wrap:wrap;align-items:center}
+  .guar{margin-top:20px;font-size:13px;color:var(--soft);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:40px;max-width:1100px}
+  .card{padding:24px 20px 28px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.012));border:1px solid var(--line);backdrop-filter:blur(12px)}
+  .card .num{font-size:12px;font-weight:700;color:var(--soft);letter-spacing:.08em}.card h4{margin-top:12px;font-size:18px;font-weight:600}.card p{margin-top:9px;font-size:13.5px;line-height:1.5;color:var(--mut)}
+  .metrics{display:flex;gap:48px;flex-wrap:wrap;margin-top:30px}
+  .metric .v{font-size:clamp(40px,5vw,68px);font-weight:700;letter-spacing:-.04em;background:linear-gradient(180deg,#fff,var(--soft));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .metric .l{margin-top:6px;font-size:13.5px;color:var(--mut);max-width:22ch;line-height:1.5}
+  /* chrome */
+  .rail{position:fixed;right:clamp(14px,2.2vw,30px);top:50%;transform:translateY(-50%);z-index:25;display:flex;flex-direction:column;gap:14px}
+  .rail i{width:7px;height:7px;border:1px solid rgba(255,255,255,.35);border-radius:50%;transition:.3s}.rail i.on{background:var(--soft);border-color:var(--soft);box-shadow:0 0 10px var(--soft)}
+  .pct{position:fixed;bottom:24px;left:clamp(22px,4vw,56px);z-index:25;font-size:11px;letter-spacing:.2em;color:var(--mut);font-variant-numeric:tabular-nums}.pct b{color:var(--soft)}
+  .cue{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:25;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut);opacity:.8}
+  .story{height:620vh;position:relative;z-index:5}
+  @media(max-width:820px){.rail{display:none}.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas><div class="grain"></div>
+  <nav><div class="wm">autom<span class="x">ai</span>tions</div><a class="cta" data-go="4">Start a build</a></nav>
+  <div class="rail" id="rail"></div>
+  <div class="pct"><b id="pctn">00</b> / 100</div>
+  <div class="cue" id="cue">scroll to begin</div>
+
+  <div class="chap center" data-ch="0">
+    <div class="inner"><span class="k" style="justify-content:center">the foundation layer of AI</span>
+      <h1>The work that runs your business — <span class="x">handled</span>, <span class="dim">before you ask.</span></h1>
+      <p class="sub" style="margin:26px auto 0">The quiet systems behind your business — answering, following up, reconciling, reporting — while you sleep.</p>
+    </div>
+  </div>
+  <div class="chap" data-ch="1">
+    <div class="inner"><span class="k">the mechanism</span><h2>One person owns the whole loop. <span class="dim">Not 25 tools owning fragments.</span></h2>
+      <p class="lead">Not a tool. Not a chatbot. The operational layer underneath the AI you already run — set up, integrated, maintained — so your stack behaves like one engine.</p></div>
+  </div>
+  <div class="chap" data-ch="2">
+    <div class="inner"><span class="k">what we build</span><h2>Four systems, taken off your plate for good.</h2>
+      <div class="grid">
+        <div class="card"><div class="num">01</div><h4>Always-on intake</h4><p>Leads, DMs and forms answered in seconds, qualified, logged and routed.</p></div>
+        <div class="card"><div class="num">02</div><h4>Follow-up engine</h4><p>Quotes chased, reviews requested, no-shows rebooked. Revenue recovered.</p></div>
+        <div class="card"><div class="num">03</div><h4>Back-office on rails</h4><p>Invoices reconciled, reports built, data moved between tools that don't talk.</p></div>
+        <div class="card"><div class="num">04</div><h4>The morning brief</h4><p>One clear read daily: what moved, what's stuck, what needs you.</p></div>
+      </div></div>
+  </div>
+  <div class="chap" data-ch="3">
+    <div class="inner"><span class="k">why it matters</span><h2>The hours you get back <span class="x">compound</span>.</h2>
+      <div class="metrics">
+        <div class="metric"><div class="v">24/7</div><div class="l">Never clocks off, never drops a lead.</div></div>
+        <div class="metric"><div class="v">~20h</div><div class="l">Of admin handed back to a team, every week.</div></div>
+        <div class="metric"><div class="v">&lt;30d</div><div class="l">From first call to a system running live.</div></div>
+      </div></div>
+  </div>
+  <div class="chap center" data-ch="4" id="start">
+    <div class="inner"><span class="k" style="justify-content:center">start here</span>
+      <h2 style="margin:0 auto">Tell us what runs your day.<br>We'll make it run <span class="x">itself</span>.</h2>
+      <p class="sub" style="margin:24px auto 0">One call. We map the repetitive work, find the highest-leverage system, and build it. You approve it once — then it just runs.</p>
+      <div class="ctarow" style="justify-content:center"><a class="btn solid" href="mailto:hello@automaitions.com">Get your automation map</a></div>
+      <div class="guar">First system live in 30 days — or you don't pay.</div></div>
+  </div>
+
+  <div class="story" id="story"></div>
+
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+    import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+    const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const MOBILE=innerWidth<760;
+    const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('scene'),antialias:false,alpha:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+    const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x05060e,0.011);
+    const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,0.1,400);camera.position.set(0,0,54);
+    const N=MOBILE?42000:110000;
+    const INDIGO=new THREE.Color(0x4a4ad0),SOFT=new THREE.Color(0x9a9af4),CYAN=new THREE.Color(0xc3d0ff);
+    // ---- formations ----
+    const T_NEB=new Float32Array(N*3),T_LOGO=new Float32Array(N*3),T_LAT=new Float32Array(N*3),T_CONV=new Float32Array(N*3);
+    const seed=new Float32Array(N),sz=new Float32Array(N);
+    for(let i=0;i<N;i++){seed[i]=Math.random();sz[i]=0.5+Math.random()*Math.random()*2.4;
+      // nebula: wide soft cloud
+      const a=Math.random()*6.2832,el=Math.acos(Math.random()*2-1),r=Math.pow(Math.random(),0.8)*84;
+      T_NEB[i*3]=Math.sin(el)*Math.cos(a)*r;T_NEB[i*3+1]=Math.sin(el)*Math.sin(a)*r*0.7;T_NEB[i*3+2]=Math.cos(el)*r*1.1;
+      // lattice: structured 3D grid (systems)
+      const gx=14,gy=6,gz=14,S=8.5;const cx=(Math.floor(Math.random()*gx)-(gx-1)/2)*S,cy=(Math.floor(Math.random()*gy)-(gy-1)/2)*S,cz=(Math.floor(Math.random()*gz)-(gz-1)/2)*S;
+      T_LAT[i*3]=cx+(Math.random()-0.5)*2.6;T_LAT[i*3+1]=cy+(Math.random()-0.5)*2.6;T_LAT[i*3+2]=cz+(Math.random()-0.5)*2.6;
+      // converge: bright core
+      const cu=Math.random()*2-1,cth=Math.random()*6.2832,cr=Math.pow(Math.random(),0.82)*15;
+      T_CONV[i*3]=Math.sqrt(1-cu*cu)*Math.cos(cth)*cr;T_CONV[i*3+1]=Math.sqrt(1-cu*cu)*Math.sin(cth)*cr;T_CONV[i*3+2]=cu*cr;}
+    T_LOGO.set(T_NEB);
+    const GLYPH=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2048 2048' width='2048' height='2048'><g transform='translate(85.868,1807.360) scale(1.557066,-1.557066)'><path d='M428 -20C583 -20 691 42 752 157H761V0H1089V759C1089 999 870 1132 592 1132C312 1132 136 1001 92 810L408 769C427 839 492 884 589 884C684 884 741 840 741 763V759C741 690 665 676 476 660C250 641 60 558 60 310C60 89 213 -20 428 -20ZM534 211C450 211 390 251 390 326C390 400 448 444 551 459C616 469 704 484 744 505V398C744 288 651 211 534 211Z' fill='#fff'/></g></svg>`;
+    const img=new Image();img.onload=()=>{const S=320,cv=document.createElement('canvas');cv.width=S;cv.height=S;const ctx=cv.getContext('2d');ctx.drawImage(img,0,0,S,S);const d=ctx.getImageData(0,0,S,S).data,pts=[];for(let y=0;y<S;y+=2)for(let x=0;x<S;x+=2)if(d[(y*S+x)*4+3]>120)pts.push([x,y]);if(pts.length>50){let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;for(const q of pts){if(q[0]<mnx)mnx=q[0];if(q[0]>mxx)mxx=q[0];if(q[1]<mny)mny=q[1];if(q[1]>mxy)mxy=q[1];}const gw=mxx-mnx,gh=mxy-mny,fit=MOBILE?44:56,sc=fit/Math.max(gw,gh),ccx=(mnx+mxx)/2,ccy=(mny+mxy)/2;for(let k=pts.length-1;k>0;k--){const j=(Math.random()*(k+1))|0;[pts[k],pts[j]]=[pts[j],pts[k]];}for(let i=0;i<N;i++){const p=pts[i%pts.length];T_LOGO[i*3]=(p[0]-ccx)*sc+15+(Math.random()-0.5)*1.2;T_LOGO[i*3+1]=-(p[1]-ccy)*sc+(Math.random()-0.5)*1.2;T_LOGO[i*3+2]=(Math.random()-0.5)*7;}loaded=-99;} };
+    img.src='data:image/svg+xml;utf8,'+encodeURIComponent(GLYPH);
+    const STAGES=[T_NEB,T_LOGO,T_LAT,T_NEB,T_CONV];   // hero, mechanism, systems, proof, cta
+    const geo=new THREE.BufferGeometry();const pos=new Float32Array(N*3);pos.set(T_NEB);
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    geo.setAttribute('aA',new THREE.BufferAttribute(T_NEB,3));
+    geo.setAttribute('aB',new THREE.BufferAttribute(T_LOGO.slice(),3));
+    geo.setAttribute('aSeed',new THREE.BufferAttribute(seed,1));geo.setAttribute('aSize',new THREE.BufferAttribute(sz,1));
+    const U={uTime:{value:0},uMorph:{value:0},uPixel:{value:Math.min(devicePixelRatio,2)},uFlow:{value:1},uI:{value:INDIGO},uS:{value:SOFT},uC:{value:CYAN}};
+    const mat=new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+      vertexShader:`uniform float uTime,uMorph,uPixel,uFlow;attribute vec3 aA,aB;attribute float aSeed,aSize;varying float vB;varying vec3 vCol;uniform vec3 uI,uS,uC;
+        vec3 h3(vec3 p){p=vec3(dot(p,vec3(127.1,311.7,74.7)),dot(p,vec3(269.5,183.3,246.1)),dot(p,vec3(113.5,271.9,124.6)));return fract(sin(p)*43758.5453)*2.-1.;}
+        float n(vec3 p){vec3 i=floor(p),f=fract(p);vec3 u=f*f*(3.-2.*f);return mix(mix(mix(dot(h3(i),f),dot(h3(i+vec3(1,0,0)),f-vec3(1,0,0)),u.x),mix(dot(h3(i+vec3(0,1,0)),f-vec3(0,1,0)),dot(h3(i+vec3(1,1,0)),f-vec3(1,1,0)),u.x),u.y),mix(mix(dot(h3(i+vec3(0,0,1)),f-vec3(0,0,1)),dot(h3(i+vec3(1,0,1)),f-vec3(1,0,1)),u.x),mix(dot(h3(i+vec3(0,1,1)),f-vec3(0,1,1)),dot(h3(i+vec3(1,1,1)),f-vec3(1,1,1)),u.x),u.y),u.z);}
+        vec3 curl(vec3 p){float e=.35;return normalize(vec3(n(p+vec3(0,e,0))-n(p-vec3(0,e,0))-(n(p+vec3(0,0,e))-n(p-vec3(0,0,e))),n(p+vec3(0,0,e))-n(p-vec3(0,0,e))-(n(p+vec3(e,0,0))-n(p-vec3(e,0,0))),n(p+vec3(e,0,0))-n(p-vec3(e,0,0))-(n(p+vec3(0,e,0))-n(p-vec3(0,e,0)))+1e-5));}
+        void main(){float m=uMorph;float dl=aSeed*0.28;float t=clamp((m-dl)/(1.0-dl),0.0,1.0);t=t*t*(3.-2.*t);vec3 p=mix(aA,aB,t);
+          float fl=uFlow*(0.18+sin(m*3.14159)*1.0);p+=curl(p*0.05+uTime*0.05+aSeed*5.0)*(1.4*fl);p+=curl(p*0.02-uTime*0.03)*0.4;
+          vec4 mv=modelViewMatrix*vec4(p,1.0);float tw=0.6+0.4*sin(uTime*1.5+aSeed*40.0);vB=tw;
+          float dep=clamp((-mv.z-30.0)/55.0,0.0,1.0);vCol=mix(mix(uC,uI,dep),uS,0.35+0.3*sin(aSeed*6.28));
+          gl_PointSize=aSize*(250.0/-mv.z)*uPixel;gl_Position=projectionMatrix*mv;}`,
+      fragmentShader:`varying float vB;varying vec3 vCol;void main(){vec2 u=gl_PointCoord-0.5;float d=length(u);if(d>0.5)discard;float s=pow(smoothstep(0.5,0.0,d),1.7);gl_FragColor=vec4(vCol*vB*1.0,s*0.155);}`});
+    scene.add(new THREE.Points(geo,mat));
+    const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
+    const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.62,0.6,0.12);composer.addPass(bloom);
+    let bokeh=null;if(!MOBILE){bokeh=new BokehPass(scene,camera,{focus:54.0,aperture:0.0014,maxblur:0.008});composer.addPass(bokeh);}
+    const grain={uniforms:{tDiffuse:{value:null},uT:{value:0}},vertexShader:`varying vec2 v;void main(){v=uv;gl_Position=vec4(position,1.0);}`,
+      fragmentShader:`uniform sampler2D tDiffuse;uniform float uT;varying vec2 v;float h(vec2 p){return fract(sin(dot(p,vec2(41.3,289.1)))*43758.5);}void main(){vec3 c=texture2D(tDiffuse,v).rgb;c+=(h(v+uT)-0.5)*0.045;float d=distance(v,vec2(0.5));c*=smoothstep(1.2,0.35,d)*0.5+0.55;gl_FragColor=vec4(c,1.0);}`};
+    const grainPass=new ShaderPass(grain);composer.addPass(grainPass);
+
+    // chapters
+    const chaps=[...document.querySelectorAll('.chap')],NC=chaps.length;
+    const rail=document.getElementById('rail');chaps.forEach((_,k)=>{const i=document.createElement('i');i.dataset.go=k;rail.appendChild(i);});
+    const dots=[...rail.children];
+    function activate(i){chaps.forEach((c,k)=>c.classList.toggle('on',k===i));dots.forEach((d,k)=>d.classList.toggle('on',k===i));}
+    // morph buffer swap: set aA/aB to bracketing stages, uMorph=frac
+    const aA=geo.attributes.aA,aB=geo.attributes.aB;let loaded=-1;
+    function setStage(lo,frac){if(loaded!==lo){aA.array.set(STAGES[lo]);aA.needsUpdate=true;aB.array.set(STAGES[Math.min(lo+1,STAGES.length-1)]);aB.needsUpdate=true;loaded=lo;}U.uMorph.value=frac;}
+    let scrollP=0,vel=0;
+    if(REDUCED){activate(0);setStage(0,0);}
+    else{
+      gsap.registerPlugin(ScrollTrigger);
+      const lenis=new Lenis({lerp:0.08,smoothWheel:true});window.__lenis=lenis;
+      lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
+      ScrollTrigger.create({trigger:'#story',start:'top top',end:'bottom bottom',scrub:true,onUpdate:s=>{scrollP=s.progress;vel=Math.min(Math.abs(s.getVelocity())/3000,2.0);
+        document.getElementById('pctn').textContent=String(Math.round(s.progress*100)).padStart(2,'0');document.getElementById('cue').style.opacity=s.progress>0.02?0:0.8;}});
+    }
+    document.body.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g&&window.__lenis){const i=+g.dataset.go;const mx=document.documentElement.scrollHeight-innerHeight;window.__lenis.scrollTo((i/(NC-1))*mx);}});
+    let tpx=0,tpy=0,px=0,py=0;addEventListener('pointermove',e=>{tpx=e.clientX/innerWidth-0.5;tpy=e.clientY/innerHeight-0.5;});
+    const clock=new THREE.Clock();let vS=0,curM=0,curCh=-1;
+    function loop(){const dt=Math.min(clock.getDelta(),0.05);U.uTime.value+=dt;vS+=(vel-vS)*0.06;
+      const tgt=scrollP*(NC-1);curM+=(tgt-curM)*0.06;
+      const lo=Math.min(Math.floor(curM),STAGES.length-2),frac=curM-lo;setStage(lo,frac*frac*(3-2*frac));
+      U.uFlow.value=1.0+vS*0.6;
+      // camera travels forward through the field + parallax drift
+      px+=(tpx-px)*0.04;py+=(tpy-py)*0.04;
+      const camZ=54-Math.min(curM,4)*4.5;camera.position.x+=(px*16-camera.position.x)*0.05;camera.position.y+=(-py*10-camera.position.y)*0.05;camera.position.z+=(camZ-camera.position.z)*0.04;
+      camera.rotation.z=Math.sin(U.uTime.value*0.05)*0.02;camera.lookAt(0,0,0);
+      if(bokeh)bokeh.uniforms.focus.value=camera.position.z;
+      bloom.strength=0.6+vS*0.25;grainPass.uniforms.uT.value+=dt;
+      const ach=Math.round(curM);if(ach!==curCh){curCh=ach;activate(Math.max(0,Math.min(NC-1,ach)));}
+      composer.render();requestAnimationFrame(loop);}
+    activate(0);loop();
+    addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloom.setSize(innerWidth,innerHeight);U.uPixel.value=Math.min(devicePixelRatio,2);});
+  </script>
+</body>
+</html>
