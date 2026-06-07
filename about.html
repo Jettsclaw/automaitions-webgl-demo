@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>automaitions — about / kinetic type</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#FAFAFA;--soft:#8C8CF0;--indigo:#5B5BD6;--bg:#070709}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  body{background:radial-gradient(120% 80% at 80% -10%,rgba(91,91,214,.18),transparent 55%),radial-gradient(90% 70% at 0% 110%,rgba(140,60,200,.12),transparent 55%),var(--bg)}
+  nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(22px,4vw,54px);mix-blend-mode:difference}
+  .wm{font-weight:600;font-size:18px;letter-spacing:-.02em}.wm .x{color:var(--soft)}
+  .tabs{display:flex;gap:20px;font-size:13px;font-weight:500}.tabs a{opacity:.8}.tabs a.on{opacity:1;color:var(--soft)}.tabs a:hover{opacity:1}
+  /* hero kinetic word-cycler */
+  .hero{height:100dvh;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;overflow:hidden}
+  .pre{font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--soft);font-weight:600;margin-bottom:6px;z-index:2}
+  .cycler{height:clamp(70px,16vw,230px);overflow:hidden;position:relative;z-index:2}
+  .cycler .word{font-size:clamp(64px,16vw,230px);font-weight:900;letter-spacing:-.06em;line-height:1;background:linear-gradient(100deg,#fff,var(--soft) 60%,var(--indigo));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;will-change:transform;text-align:center}
+  .static-l{font-size:clamp(28px,5vw,64px);font-weight:300;letter-spacing:-.03em;color:#cfcfda;z-index:2}
+  .static-l b{font-weight:700;color:#fff}
+  /* huge ghost word reacting to cursor */
+  .ghost{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:38vw;font-weight:900;color:rgba(140,140,240,.05);letter-spacing:-.06em;pointer-events:none;z-index:1;white-space:nowrap;will-change:transform}
+  /* marquee */
+  .marq{position:fixed;bottom:0;left:0;right:0;z-index:5;border-top:1px solid rgba(255,255,255,.1);background:rgba(7,7,9,.6);backdrop-filter:blur(8px);overflow:hidden;padding:14px 0}
+  .marq .row{display:flex;gap:48px;white-space:nowrap;animation:scroll 28s linear infinite;will-change:transform}
+  .marq span{font-size:14px;font-weight:600;letter-spacing:.02em;color:#cfcfda;display:inline-flex;gap:48px}
+  .marq .dot{color:var(--soft)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .corner{position:fixed;top:50%;z-index:5;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8a8a98;transform:translateY(-50%)}
+  .corner.r{right:clamp(14px,2vw,28px);writing-mode:vertical-rl}
+  @media(max-width:760px){.tabs{display:none}.corner{display:none}}
+  @media(prefers-reduced-motion:reduce){.cycler .word,.marq .row,.ghost{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <nav>
+    <div class="wm">autom<span class="x">ai</span>tions</div>
+    <div class="tabs"><a href="index.html">home</a><a href="systems.html">systems</a><a href="process.html">process</a><a href="work.html">work</a><a href="about.html" class="on">about</a><a href="contact.html">contact</a></div>
+  </nav>
+
+  <section class="hero">
+    <div class="ghost" id="ghost">leverage</div>
+    <div class="pre">built by operators</div>
+    <div class="cycler"><div class="word" id="word">leverage</div></div>
+    <div class="static-l">over <b>labour</b>. always.</div>
+  </section>
+
+  <div class="marq">
+    <div class="row" id="row"></div>
+  </div>
+  <div class="corner r">005 — about · kinetic type</div>
+
+  <script>
+  const words=["leverage","systems","autonomy","velocity","clarity","leverage"];
+  const wordEl=document.getElementById('word'), ghost=document.getElementById('ghost');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // decode/scramble cycle
+  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  function scrambleTo(target){
+    return new Promise(res=>{
+      if(reduced){wordEl.textContent=target;ghost.textContent=target;res();return;}
+      let frame=0;const total=target.length;
+      const iv=setInterval(()=>{
+        let out="";
+        for(let i=0;i<target.length;i++){
+          if(i< frame/2) out+=target[i];
+          else out+=chars[(Math.random()*chars.length)|0].toLowerCase();
+        }
+        wordEl.textContent=out;ghost.textContent=out;
+        frame++;
+        if(frame/2>=total){clearInterval(iv);wordEl.textContent=target;ghost.textContent=target;res();}
+      },45);
+    });
+  }
+  let wi=0;
+  async function cycle(){
+    while(true){
+      await scrambleTo(words[wi%words.length]);
+      wi++;
+      await new Promise(r=>setTimeout(r,1700));
+    }
+  }
+  cycle();
+  // cursor parallax on the ghost word
+  let gx=0,gy=0,tgx=0,tgy=0;
+  addEventListener('pointermove',e=>{tgx=(e.clientX/innerWidth-0.5);tgy=(e.clientY/innerHeight-0.5);});
+  function pl(){gx+=(tgx-gx)*.05;gy+=(tgy-gy)*.05;if(!reduced)ghost.style.transform=`translate(${gx*60}px,${gy*40}px) scale(1.04)`;requestAnimationFrame(pl);}
+  pl();
+  // marquee content
+  const items=["AI operations, built for you","systems not seats","it has to just run","start where it hurts","leverage over labour","handled before you ask","one owner, one engine","time is the only currency"];
+  const row=document.getElementById('row');
+  const build=()=>{const s=document.createElement('span');s.innerHTML=items.map(t=>`${t} <span class="dot">✶</span>`).join(' ');return s;};
+  row.appendChild(build());row.appendChild(build()); // duplicate for seamless loop
+  </script>
+</body>
+</html>
