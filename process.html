@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>automaitions — process / 3D lattice</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#FAFAFA;--soft:#8C8CF0;--indigo:#5B5BD6}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#040406;color:var(--paper);font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  #stage{position:fixed;inset:0;width:100vw;height:100dvh;z-index:0;overflow:hidden}
+  #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .track{height:420vh}
+  .grain{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .vig{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(140% 110% at 50% 50%,transparent 46%,rgba(4,4,6,.86) 100%)}
+  nav{position:fixed;top:0;left:0;right:0;z-index:6;display:flex;justify-content:space-between;align-items:center;padding:18px clamp(22px,4vw,54px);mix-blend-mode:difference}
+  .wm{font-weight:600;font-size:18px;letter-spacing:-.02em}.wm .x{color:var(--soft)}
+  .tabs{display:flex;gap:20px;font-size:13px;font-weight:500}.tabs a{opacity:.8}.tabs a.on{opacity:1;color:var(--soft)}.tabs a:hover{opacity:1}
+  /* fixed step overlay; text swaps with scroll */
+  .overlay{position:fixed;inset:0;z-index:4;pointer-events:none;display:flex;align-items:center;padding:0 clamp(22px,7vw,150px)}
+  .step{position:absolute;max-width:20ch;opacity:0;transform:translateY(26px);transition:opacity .6s,transform .6s}
+  .step.on{opacity:1;transform:none}
+  .step .n{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);font-weight:700;margin-bottom:14px}
+  .step h2{font-size:clamp(34px,6vw,86px);line-height:.98;font-weight:700;letter-spacing:-.045em;text-shadow:0 4px 50px rgba(4,4,6,.8)}
+  .step p{margin-top:18px;font-size:clamp(15px,1.7vw,19px);line-height:1.5;color:#d4d4de;max-width:34ch;text-shadow:0 2px 24px rgba(4,4,6,.9)}
+  .corner{position:fixed;bottom:clamp(22px,4vw,54px);z-index:6;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#bdbdc9}
+  .corner.l{left:clamp(22px,4vw,54px)}.corner.r{right:clamp(22px,4vw,54px)}
+  .corner .pct{color:var(--soft);font-weight:700}
+  @media(max-width:760px){.tabs{display:none}}
+</style>
+</head>
+<body>
+  <div id="stage"><canvas id="gl"></canvas></div>
+  <div class="grain"></div><div class="vig"></div>
+  <nav>
+    <div class="wm">autom<span class="x">ai</span>tions</div>
+    <div class="tabs"><a href="index.html">home</a><a href="systems.html">systems</a><a href="process.html" class="on">process</a><a href="work.html">work</a><a href="about.html">about</a><a href="contact.html">contact</a></div>
+  </nav>
+  <div class="overlay" id="ov">
+    <div class="step" data-at="0"><div class="n">01 — map</div><h2>We map what eats your week.</h2><p>One 30-minute call. No prep. We find the repetitions worth removing.</p></div>
+    <div class="step" data-at="0.33"><div class="n">02 — build</div><h2>We wire it into your stack.</h2><p>The highest-leverage system, built into the tools you already run. Live in under 30 days.</p></div>
+    <div class="step" data-at="0.66"><div class="n">03 — approve</div><h2>You sign off once.</h2><p>See it running on real cases, we tune the edges, you approve. Then you stop thinking about it.</p></div>
+    <div class="step" data-at="1"><div class="n">04 — runs</div><h2>It just runs.</h2><p>Live and monitored in the background. We watch it, fix fast, and stack the next system.</p></div>
+  </div>
+  <div class="corner l">003 — process · 3D lattice flythrough</div>
+  <div class="corner r">scroll <span class="pct" id="pct">000</span></div>
+  <div class="track"></div>
+
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stage=document.getElementById('stage'),canvas=document.getElementById('gl');
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x040406,0.013);
+    const camera=new THREE.PerspectiveCamera(70,1,0.1,600);
+    function size(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);composer&&composer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
+
+    // ---- 3D wireframe lattice ----
+    const GX=7,GY=5,GZ=26,SP=14;
+    const N=GX*GY*GZ;
+    const geo=new THREE.BoxGeometry(8,8,8);
+    const mat=new THREE.MeshBasicMaterial({wireframe:true,transparent:true,opacity:1.0});
+    const mesh=new THREE.InstancedMesh(geo,mat,N);
+    const dummy=new THREE.Object3D();
+    const A=new THREE.Color(0x5B5BD6),B=new THREE.Color(0x28d0d8),C=new THREE.Color(0xb060e0);
+    const seed=new Float32Array(N);
+    let i=0;
+    for(let x=0;x<GX;x++)for(let y=0;y<GY;y++)for(let z=0;z<GZ;z++){
+      dummy.position.set((x-(GX-1)/2)*SP,(y-(GY-1)/2)*SP,-z*SP);
+      dummy.rotation.set(0,0,0);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
+      const t=z/GZ;const col=(t<0.5?A.clone().lerp(B,t*2):B.clone().lerp(C,(t-0.5)*2)).multiplyScalar(1.2);
+      mesh.setColorAt(i,col);seed[i]=Math.random()*6.28;i++;
+    }
+    mesh.instanceColor.needsUpdate=true;
+    scene.add(mesh);
+    const positions=[];i=0;
+    for(let x=0;x<GX;x++)for(let y=0;y<GY;y++)for(let z=0;z<GZ;z++){positions.push([(x-(GX-1)/2)*SP,(y-(GY-1)/2)*SP,-z*SP]);i++;}
+
+    let composer,bloom;
+    composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
+    bloom=new UnrealBloomPass(new THREE.Vector2(1,1),0.85,0.6,0.0);composer.addPass(bloom);
+    size();addEventListener('resize',size);
+
+    // scroll
+    const lenis=new Lenis({lerp:0.09,smoothWheel:true});window.__lenis=lenis;
+    let sp=0;
+    lenis.on('scroll',e=>{const mx=document.documentElement.scrollHeight-innerHeight;sp=mx>0?e.scroll/mx:0;
+      document.getElementById('pct').textContent=String(Math.round(sp*100)).padStart(3,'0');updateSteps(sp);});
+    function rl(t){lenis.raf(t);requestAnimationFrame(rl);}requestAnimationFrame(rl);
+    let tpx=0,tpy=0,px=0,py=0;addEventListener('pointermove',e=>{tpx=e.clientX/innerWidth-0.5;tpy=e.clientY/innerHeight-0.5;});
+
+    const steps=[...document.querySelectorAll('.step')];
+    function updateSteps(p){let idx=p<0.25?0:p<0.5?1:p<0.78?2:3;steps.forEach((s,k)=>s.classList.toggle('on',k===idx));}
+    updateSteps(0);
+
+    const clock=new THREE.Clock();let camZ=20,curSp=0;
+    function loop(){
+      const t=clock.getElapsedTime();
+      curSp+=(sp-curSp)*0.06;
+      // fly the camera down the -Z corridor
+      const targetZ=8-curSp*(GZ*SP-70);
+      camZ+=(targetZ-camZ)*0.08;
+      px+=(tpx-px)*0.04;py+=(tpy-py)*0.04;
+      camera.position.set(px*18,-py*12,camZ);
+      camera.lookAt(px*6,-py*4,camZ-60);
+      // gently rotate each box
+      if(!reduced){for(let k=0;k<N;k++){const p=positions[k];dummy.position.set(p[0],p[1],p[2]);
+        dummy.rotation.set(t*0.12+seed[k],t*0.16+seed[k]*0.5,0);dummy.updateMatrix();mesh.setMatrixAt(k,dummy.matrix);}mesh.instanceMatrix.needsUpdate=true;}
+      composer.render();requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
